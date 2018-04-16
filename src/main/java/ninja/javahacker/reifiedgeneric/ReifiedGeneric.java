@@ -41,22 +41,25 @@ public class ReifiedGeneric<X> {
         this.generic = type;
     }
 
-    public static <X> ReifiedGeneric<X> forClass(Class<X> klass) throws MalformedReifiedGenericException {
-        return new ReifiedGeneric<>(klass);
+    public static <X> ReifiedGeneric<X> forClass(@NonNull Class<X> type)
+            throws MalformedReifiedGenericException, NullPointerException
+    {
+        return new ReifiedGeneric<>(type);
     }
 
     /**
      * This method wraps {@code Type} instances to {@code ReifiedGeneric} instances.
      *
-     * <p>The main purpose of this method is to be able to integrate {@code ReifiedGeneric}-based APIs with {@code Type}-based ones.</p>
+     * <p>The main purpose of this method is to be able to integrat
+     * {@code ReifiedGeneric}-based APIs with {@code Type}-based ones.</p>
      *
-     * @param t The {@code Type} instance to be wrapped. Must be a {@link ParameterizedType} or a {@link Class}.
+     * @param type The {@code Type} instance to be wrapped. Must be a {@link ParameterizedType} or a {@link Class}.
      * @return The wrapping {@code ReifiedGeneric} instance.
-     * @throws NullPointerException If {@code t} is {@code null}.
-     * @throws MalformedReifiedGenericException If {@code t} is not a {@link ParameterizedType} nor a {@link Class}.
+     * @throws NullPointerException If {@code type} is {@code null}.
+     * @throws MalformedReifiedGenericException If {@code type} is not a {@link ParameterizedType} nor a {@link Class}.
      */
-    public static ReifiedGeneric<?> forType(@NonNull Type t) throws MalformedReifiedGenericException, NullPointerException {
-        return new ReifiedGeneric<>(t);
+    public static ReifiedGeneric<?> forType(@NonNull Type type) throws MalformedReifiedGenericException, NullPointerException {
+        return new ReifiedGeneric<>(type);
     }
 
     public Type getGeneric() {
@@ -74,7 +77,7 @@ public class ReifiedGeneric<X> {
         return (Class<X>) pt.getRawType();
     }
 
-    public boolean isAssignableFrom(Class<?> someClass) {
+    public boolean isAssignableFrom(@NonNull Class<?> someClass) {
         return raw().isAssignableFrom(someClass);
     }
 
@@ -98,7 +101,8 @@ public class ReifiedGeneric<X> {
 
     @Override
     public String toString() {
-        return "TargetType[" + generic + "]";
+        String name = (generic instanceof Class) ? ((Class<?>) generic).getName() : generic.toString();
+        return "ReifiedGeneric<" + name + ">";
     }
 
     @Override
@@ -109,26 +113,5 @@ public class ReifiedGeneric<X> {
     @Override
     public int hashCode() {
         return generic.hashCode();
-    }
-
-    public static class MalformedReifiedGenericException extends RuntimeException {
-
-        private static final long serialVersionUID = 1L;
-
-        public static final String SHOULD_BE_INSTANTIABLE = "The generic type should be instantiable.";
-
-        public static final String ILL_DEFINED = "The generic type is ill-defined.";
-
-        public MalformedReifiedGenericException(String message) {
-            super(message, null);
-        }
-
-        public static MalformedReifiedGenericException shouldBeInstantiable() {
-            return new MalformedReifiedGenericException(SHOULD_BE_INSTANTIABLE);
-        }
-
-        public static MalformedReifiedGenericException illDefined() {
-            return new MalformedReifiedGenericException(ILL_DEFINED);
-        }
     }
 }

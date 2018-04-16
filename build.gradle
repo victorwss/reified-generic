@@ -12,7 +12,7 @@ plugins {
 }
 
 version = "1.0.0"
-ext.moduleName = "ninja.javahacker.reifiedgeneric"
+ext.moduleName = "ninja.javahacker.reified-generic"
 
 apply plugin: 'base'
 apply plugin: 'java'
@@ -48,10 +48,10 @@ dependencies {
     //compileOnly group: 'org.projectlombok', name: 'lombok', version: "1.16.20"
     //testAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: "1.16.20"
     //testCompileOnly group: 'org.projectlombok', name: 'lombok', version: "1.16.20"
-    annotationProcessor files("libs/lombok-1.16.21-d.jar")
-    compileOnly files("libs/lombok-1.16.21-d.jar")
-    testAnnotationProcessor files("libs/lombok-1.16.21-d.jar")
-    testCompileOnly files("libs/lombok-1.16.21-d.jar")
+    annotationProcessor files("libs/lombok-edge.jar")
+    compileOnly files("libs/lombok-edge.jar")
+    testAnnotationProcessor files("libs/lombok-edge.jar")
+    testCompileOnly files("libs/lombok-edge.jar")
 
     // SpotBugs
     compileOnly group: 'net.jcip', name: 'jcip-annotations', version: "1.0"
@@ -71,12 +71,10 @@ dependencies {
     // XJFunctions
     compile group: 'ninja.javahacker', name: 'xjfunctions', version: "1.0"
 
-    // Reified-Generics
-    compile group: 'ninja.javahacker', name: 'reified-generic', version: "1.0.0"
-
     // JUnit
-    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: "5.1.0"
-    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: "5.1.0"
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: "5.1.1"
+    testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: "5.1.1"
+    testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: "5.1.1"
     testCompileOnly group: 'org.apiguardian', name: 'apiguardian-api', version: "1.0.0"
 }
 
@@ -123,4 +121,8 @@ jar {
     manifest {
         attributes("Automatic-Module-Name": moduleName)
     }
+}
+
+test {
+    useJUnitPlatform()
 }
