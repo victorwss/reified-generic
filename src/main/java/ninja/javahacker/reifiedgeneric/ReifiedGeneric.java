@@ -2,7 +2,6 @@ package ninja.javahacker.reifiedgeneric;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Map;
 import lombok.NonNull;
 
 /**
@@ -79,24 +78,6 @@ public class ReifiedGeneric<X> {
 
     public boolean isAssignableFrom(@NonNull Class<?> someClass) {
         return raw().isAssignableFrom(someClass);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <E> ReifiedGeneric<E> unwrapIterableGenericType(@NonNull ReifiedGeneric<? extends Iterable<E>> target) {
-        if (!target.raw().isAssignableFrom(Iterable.class)) throw new IllegalArgumentException();
-        return (ReifiedGeneric<E>) ReifiedGeneric.forType(((ParameterizedType) target.generic).getActualTypeArguments()[0]);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <E> ReifiedGeneric<E> unwrapMapKeyType(@NonNull ReifiedGeneric<? extends Map<E, ?>> target) {
-        if (!target.raw().isAssignableFrom(Map.class)) throw new IllegalArgumentException();
-        return (ReifiedGeneric<E>) ReifiedGeneric.forType(((ParameterizedType) target.generic).getActualTypeArguments()[0]);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <E> ReifiedGeneric<E> unwrapMapValueType(@NonNull ReifiedGeneric<? extends Map<?, E>> target) {
-        if (!target.raw().isAssignableFrom(Map.class)) throw new IllegalArgumentException();
-        return (ReifiedGeneric<E>) ReifiedGeneric.forType(((ParameterizedType) target.generic).getActualTypeArguments()[1]);
     }
 
     @Override
