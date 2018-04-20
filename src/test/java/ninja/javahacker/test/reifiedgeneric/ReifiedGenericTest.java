@@ -5,7 +5,6 @@ import java.lang.reflect.Type;
 import java.util.List;
 import ninja.javahacker.reifiedgeneric.MalformedReifiedGenericException;
 import ninja.javahacker.reifiedgeneric.ReifiedGeneric;
-import ninja.javahacker.reifiedgeneric.Wrappers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;

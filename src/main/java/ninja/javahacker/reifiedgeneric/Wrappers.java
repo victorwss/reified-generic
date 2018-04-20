@@ -23,7 +23,7 @@ import lombok.experimental.UtilityClass;
 public class Wrappers {
 
     public ParameterizedType make(Class<?> rawType, Type[] actualTypeArguments, Type ownerType) {
-        return MyParameterizedType.make(rawType, actualTypeArguments, ownerType);
+        return new MyParameterizedType(rawType, actualTypeArguments, ownerType);
     }
 
     static {

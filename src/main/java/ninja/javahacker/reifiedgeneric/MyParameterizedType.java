@@ -6,35 +6,37 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.stream.Stream;
+import lombok.experimental.PackagePrivate;
 
 /**
  * Copied from http://grepcode.com/file/repository.grepcode.com/java/root/jdk/openjdk/8u40-b25/sun/reflect/generics/reflectiveObjects/ParameterizedTypeImpl.java/
  */
-public class MyParameterizedType implements ParameterizedType {
+@PackagePrivate
+class MyParameterizedType implements ParameterizedType {
     private final Type[] actualTypeArguments;
     private final Class<?> rawType;
     private final Type ownerType;
 
-    private MyParameterizedType(Class<?> rawType, Type[] actualTypeArguments, Type ownerType) {
-        this.actualTypeArguments = actualTypeArguments;
+    @PackagePrivate
+    MyParameterizedType(Class<?> rawType, Type[] actualTypeArguments, Type ownerType) {
+        this.actualTypeArguments = Stream.of(actualTypeArguments).map(MyParameterizedType::wrap).toArray(Type[]::new);
         this.rawType = rawType;
         this.ownerType = (ownerType != null) ? ownerType : rawType.getDeclaringClass();
         validateConstructorArguments();
     }
 
+    private static Type wrap(Type other) {
+        if (!(other instanceof ParameterizedType) || (other instanceof MyParameterizedType)) return other;
+        ParameterizedType pt = (ParameterizedType) other;
+        return new MyParameterizedType((Class<?>) pt.getRawType(), pt.getActualTypeArguments(), pt.getOwnerType());
+    }
+
     private void validateConstructorArguments() {
         TypeVariable<?>[] formals = rawType.getTypeParameters();
-        // check correct arity of actual type args
         if (formals.length != actualTypeArguments.length) {
             throw new MalformedParameterizedTypeException();
         }
-        for (int i = 0; i < actualTypeArguments.length; i++) {
-            // check actuals against formals' bounds
-        }
-    }
-
-    public static MyParameterizedType make(Class<?> rawType, Type[] actualTypeArguments, Type ownerType) {
-        return new MyParameterizedType(rawType, actualTypeArguments, ownerType);
     }
 
     @Override
@@ -71,7 +73,7 @@ public class MyParameterizedType implements ParameterizedType {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(100);
 
         if (ownerType != null) {
             if (ownerType instanceof Class) {
