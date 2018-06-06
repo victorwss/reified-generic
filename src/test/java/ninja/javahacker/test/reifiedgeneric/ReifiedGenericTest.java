@@ -83,7 +83,7 @@ public class ReifiedGenericTest {
     private void npe(String message, Executable e) {
         NullPointerException exception =
                 Assertions.assertThrows(NullPointerException.class, e);
-        Assertions.assertEquals(message, exception.getMessage());
+        Assertions.assertEquals(message + " is marked @NonNull but is null", exception.getMessage());
     }
 
     private void shouldBeInstantiable(Executable e) {

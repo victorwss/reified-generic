@@ -120,7 +120,7 @@ public class WrappersTest {
 
     private static void npe(String name, Executable e) {
         NullPointerException npe = Assertions.assertThrows(NullPointerException.class, e);
-        Assertions.assertEquals(name, npe.getMessage());
+        Assertions.assertEquals(name + " is marked @NonNull but is null", npe.getMessage());
     }
 
     @Test
