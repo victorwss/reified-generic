@@ -3,7 +3,6 @@ package ninja.javahacker.test.reifiedgeneric;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -47,9 +46,7 @@ public class WrappersTest {
         ReifiedGeneric<String> c = Wrappers.unwrapIterable(new ReifiedGeneric<NavigableSet<String>>() {});
         ReifiedGeneric<String> d = Wrappers.unwrapIterator(new ReifiedGeneric<Iterator<String>>() {});
         ReifiedGeneric<String> e = Wrappers.unwrapStream(new ReifiedGeneric<Stream<String>>() {});
-        for (ReifiedGeneric<String> r : Arrays.asList(a, b, c, d, e)) {
-            Assertions.assertEquals(THING, r);
-        }
+        Assertions.assertAll(Stream.of(a, b, c, d, e).map(x -> () -> Assertions.assertEquals(THING, x)));
     }
 
     @Test
@@ -58,9 +55,7 @@ public class WrappersTest {
         ReifiedGeneric<String> b = Wrappers.unwrapMapEntryKey(new ReifiedGeneric<Map.Entry<String, Integer>>() {});
         ReifiedGeneric<String> c = Wrappers.unwrapMapValue(new ReifiedGeneric<Map<Integer, String>>() {});
         ReifiedGeneric<String> d = Wrappers.unwrapMapEntryValue(new ReifiedGeneric<Map.Entry<Integer, String>>() {});
-        for (ReifiedGeneric<String> r : Arrays.asList(a, b, c, d)) {
-            Assertions.assertEquals(THING, r);
-        }
+        Assertions.assertAll(Stream.of(a, b, c, d).map(x -> () -> Assertions.assertEquals(THING, x)));
     }
 
     @Test
@@ -126,21 +121,23 @@ public class WrappersTest {
     @Test
     @SuppressWarnings("null")
     public void testUnwrapNull() {
-        npe("base", () -> Wrappers.iterable(NIL));
-        npe("base", () -> Wrappers.iterator(NIL));
-        npe("base", () -> Wrappers.stream(NIL));
-        npe("base", () -> Wrappers.collection(NIL));
-        npe("base", () -> Wrappers.list(NIL));
-        npe("base", () -> Wrappers.set(NIL));
-        npe("base", () -> Wrappers.sortedSet(NIL));
-        npe("base", () -> Wrappers.navigableSet(NIL));
-        npe("base1", () -> Wrappers.map(NIL, THING));
-        npe("base1", () -> Wrappers.entry(NIL, THING));
-        npe("base1", () -> Wrappers.sortedMap(NIL, THING));
-        npe("base1", () -> Wrappers.navigableMap(NIL, THING));
-        npe("base2", () -> Wrappers.map(THING, NIL));
-        npe("base2", () -> Wrappers.entry(THING, NIL));
-        npe("base2", () -> Wrappers.sortedMap(THING, NIL));
-        npe("base2", () -> Wrappers.navigableMap(THING, NIL));
+        Assertions.assertAll("nulls",
+                () -> npe("base", () -> Wrappers.iterable(NIL)),
+                () -> npe("base", () -> Wrappers.iterator(NIL)),
+                () -> npe("base", () -> Wrappers.stream(NIL)),
+                () -> npe("base", () -> Wrappers.collection(NIL)),
+                () -> npe("base", () -> Wrappers.list(NIL)),
+                () -> npe("base", () -> Wrappers.set(NIL)),
+                () -> npe("base", () -> Wrappers.sortedSet(NIL)),
+                () -> npe("base", () -> Wrappers.navigableSet(NIL)),
+                () -> npe("base1", () -> Wrappers.map(NIL, THING)),
+                () -> npe("base1", () -> Wrappers.entry(NIL, THING)),
+                () -> npe("base1", () -> Wrappers.sortedMap(NIL, THING)),
+                () -> npe("base1", () -> Wrappers.navigableMap(NIL, THING)),
+                () -> npe("base2", () -> Wrappers.map(THING, NIL)),
+                () -> npe("base2", () -> Wrappers.entry(THING, NIL)),
+                () -> npe("base2", () -> Wrappers.sortedMap(THING, NIL)),
+                () -> npe("base2", () -> Wrappers.navigableMap(THING, NIL))
+        );
     }
 }

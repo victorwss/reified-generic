@@ -9,7 +9,7 @@ public class MalformedReifiedGenericException extends RuntimeException {
     public static final String SHOULD_BE_INSTANTIABLE = "The generic type should be instantiable.";
     public static final String ILL_DEFINED = "The generic type is ill-defined.";
 
-    public MalformedReifiedGenericException(String message) {
+    private MalformedReifiedGenericException(String message) {
         super(message, null);
     }
 
