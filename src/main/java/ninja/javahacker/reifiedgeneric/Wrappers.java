@@ -26,29 +26,6 @@ public class Wrappers {
         return new MyParameterizedType(rawType, actualTypeArguments, ownerType);
     }
 
-    static {
-        /*try {
-            Class<? extends ParameterizedType> cpt = Class
-                    .forName("sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl")
-                    .asSubclass(ParameterizedType.class);
-            Method m = cpt.getMethod("make", Class.class, Type[].class, Type.class);
-            PARAMETERIZED_TYPE_FACTORY = (r, a, o) -> {
-                try {
-                    return (ParameterizedType) m.invoke(null, r, a, o);
-                } catch (IllegalAccessException e) {
-                    throw new ExceptionInInitializerError(e);
-                } catch (InvocationTargetException e) {
-                    Throwable cause = e.getCause();
-                    if (e.getCause() instanceof Error) throw (Error) cause;
-                    if (e.getCause() instanceof RuntimeException) throw (RuntimeException) cause;
-                    throw new AssertionError(cause);
-                }
-            };
-        } catch (ClassNotFoundException | NoSuchMethodException | SecurityException e) {
-            throw new ExceptionInInitializerError(e);
-        }*/
-    }
-
     public <E> ReifiedGeneric<E> unwrapIterable(@NonNull ReifiedGeneric<? extends Iterable<E>> target) {
         Class<?> raw = target.raw();
         if (!Iterable.class.isAssignableFrom(raw)) throw new IllegalArgumentException(raw.getName() + " is not an Iterable.");

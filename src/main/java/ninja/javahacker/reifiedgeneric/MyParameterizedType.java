@@ -7,8 +7,11 @@ import java.lang.reflect.TypeVariable;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Stream;
+import lombok.NonNull;
 import lombok.experimental.PackagePrivate;
 
+// This class requires at least Java 9 because the ParameterizedTypeImpl
+// class from Java 8 or less has a buggy toString() method.
 @PackagePrivate
 class MyParameterizedType implements ParameterizedType {
     private final Type[] actualTypeArguments;
@@ -16,7 +19,7 @@ class MyParameterizedType implements ParameterizedType {
     private final Type ownerType;
 
     @PackagePrivate
-    MyParameterizedType(Class<?> rawType, Type[] actualTypeArguments, Type ownerType) {
+    MyParameterizedType(@NonNull Class<?> rawType, @NonNull Type[] actualTypeArguments, Type ownerType) {
         this.actualTypeArguments = Stream.of(actualTypeArguments).map(MyParameterizedType::wrap).toArray(Type[]::new);
         this.rawType = rawType;
         this.ownerType = ownerType != null ? ownerType : rawType.getDeclaringClass();
@@ -63,7 +66,9 @@ class MyParameterizedType implements ParameterizedType {
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(actualTypeArguments) ^ Objects.hash(ownerType) ^ Objects.hash(rawType);
+        return Arrays.hashCode(actualTypeArguments)
+                ^ (ownerType == null ? 0 : ownerType.hashCode())
+                ^ rawType.hashCode();
     }
 
     @Override
@@ -72,12 +77,12 @@ class MyParameterizedType implements ParameterizedType {
 
         if (ownerType != null) {
             if (ownerType instanceof Class) {
-                sb.append(((Class) ownerType).getName());
+                sb.append(((Class<?>) ownerType).getName());
             } else {
                 sb.append(ownerType.toString());
             }
 
-            sb.append(".");
+            sb.append("$");
 
             if (ownerType instanceof ParameterizedType) {
                 // Find simple name of nested type by removing the
