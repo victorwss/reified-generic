@@ -14,34 +14,32 @@ import org.junit.jupiter.api.function.Executable;
  */
 public class ReifiedGenericTest {
 
+    private void testString(ReifiedGeneric<?> s) {
+        Assertions.assertAll("tests",
+                () -> Assertions.assertEquals(String.class, s.getGeneric()),
+                () -> Assertions.assertEquals(String.class, s.raw()),
+                () -> Assertions.assertEquals("ReifiedGeneric<" + String.class.getName() + ">", s.toString()),
+                () -> Assertions.assertTrue(s.isAssignableFrom(String.class)),
+                () -> Assertions.assertTrue(s.isCompatibleWith(String.class))
+        );
+    }
+
     @Test
     public void testClassGeneric1() {
         ReifiedGeneric<String> s1 = new ReifiedGeneric<String>() {};
-        Assertions.assertAll("tests",
-                () -> Assertions.assertEquals(String.class, s1.getGeneric()),
-                () -> Assertions.assertEquals(String.class, s1.raw()),
-                () -> Assertions.assertEquals("ReifiedGeneric<" + String.class.getName() + ">", s1.toString())
-        );
+        testString(s1);
     }
 
     @Test
     public void testClassGeneric2() {
         ReifiedGeneric<String> s2 = ReifiedGeneric.forClass(String.class);
-        Assertions.assertAll("tests",
-                () -> Assertions.assertEquals(String.class, s2.getGeneric()),
-                () -> Assertions.assertEquals(String.class, s2.raw()),
-                () -> Assertions.assertEquals("ReifiedGeneric<" + String.class.getName() + ">", s2.toString())
-        );
+        testString(s2);
     }
 
     @Test
     public void testClassGeneric3() {
         ReifiedGeneric<?> s2 = ReifiedGeneric.forType(String.class);
-        Assertions.assertAll("tests",
-                () -> Assertions.assertEquals(String.class, s2.getGeneric()),
-                () -> Assertions.assertEquals(String.class, s2.raw()),
-                () -> Assertions.assertEquals("ReifiedGeneric<" + String.class.getName() + ">", s2.toString())
-        );
+        testString(s2);
     }
 
     @Test
@@ -54,7 +52,14 @@ public class ReifiedGenericTest {
                 () -> Assertions.assertEquals(List.class, s1.raw()),
                 () -> Assertions.assertEquals("java.util.List<java.lang.String>", s2.getGeneric().getTypeName()),
                 () -> Assertions.assertEquals("ReifiedGeneric<" + s2.getGeneric().getTypeName() + ">", s2.toString()),
-                () -> Assertions.assertEquals(List.class, s2.raw())
+                () -> Assertions.assertEquals(List.class, s2.raw()),
+                () -> Assertions.assertTrue(s1.isAssignableFrom(List.class)),
+                () -> Assertions.assertTrue(s1.isCompatibleWith(List.class)),
+                () -> Assertions.assertTrue(s2.isAssignableFrom(List.class)),
+                () -> Assertions.assertTrue(s2.isCompatibleWith(List.class)),
+                () -> Assertions.assertEquals(s1, s2),
+                () -> Assertions.assertEquals(s2, s1),
+                () -> Assertions.assertEquals(s1.hashCode(), s2.hashCode())
         );
     }
 
@@ -68,7 +73,14 @@ public class ReifiedGenericTest {
                 () -> Assertions.assertEquals(List.class, s1.raw()),
                 () -> Assertions.assertEquals("java.util.List<? extends java.lang.String>", s2.getGeneric().getTypeName()),
                 () -> Assertions.assertEquals("ReifiedGeneric<" + s2.getGeneric().getTypeName() + ">", s2.toString()),
-                () -> Assertions.assertEquals(List.class, s2.raw())
+                () -> Assertions.assertEquals(List.class, s2.raw()),
+                () -> Assertions.assertTrue(s1.isAssignableFrom(List.class)),
+                () -> Assertions.assertTrue(s1.isCompatibleWith(List.class)),
+                () -> Assertions.assertTrue(s2.isAssignableFrom(List.class)),
+                () -> Assertions.assertTrue(s2.isCompatibleWith(List.class)),
+                () -> Assertions.assertEquals(s1, s2),
+                () -> Assertions.assertEquals(s2, s1),
+                () -> Assertions.assertEquals(s1.hashCode(), s2.hashCode())
         );
     }
 

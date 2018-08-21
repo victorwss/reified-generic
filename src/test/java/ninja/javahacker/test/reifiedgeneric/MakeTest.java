@@ -4,7 +4,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import ninja.javahacker.reifiedgeneric.Wrappers;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -25,7 +24,6 @@ public class MakeTest {
     }
 
     @Test
-    @Disabled
     public void hard() throws Exception {
         ParameterizedType t1 = (ParameterizedType) MakeTest.class.getDeclaredMethod("foo4").getGenericReturnType();
         ParameterizedType t2 = (ParameterizedType) MakeTest.class.getDeclaredMethod("foo5").getGenericReturnType();
@@ -33,7 +31,8 @@ public class MakeTest {
         Assertions.assertAll("hard",
                 () -> Assertions.assertEquals(t1, t3),
                 () -> Assertions.assertEquals(t3, t1),
-                () -> Assertions.assertEquals(t1.toString(), t3.toString())
+                () -> Assertions.assertEquals(t1.toString(), t3.toString()),
+                () -> Assertions.assertEquals(t1.hashCode(), t3.hashCode())
         );
     }
 }

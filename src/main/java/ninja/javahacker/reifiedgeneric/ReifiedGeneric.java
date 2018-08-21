@@ -40,16 +40,30 @@ public class ReifiedGeneric<X> {
         this.generic = type;
     }
 
+    private ReifiedGeneric(Class<?> type) {
+        this.generic = type;
+    }
+
+    /**
+     * Wraps {@code Class} instances into {@code ReifiedGeneric} instances.
+     *
+     * <p>The main purpose of this method is to be able to integrate
+     * {@code ReifiedGeneric}-based APIs with {@code Class}-based ones.</p>
+     *
+     * @param type The {@code Class} instance to be wrapped.
+     * @return The wrapping {@code ReifiedGeneric} instance.
+     * @throws NullPointerException If {@code type} is {@code null}.
+     */
     public static <X> ReifiedGeneric<X> forClass(@NonNull Class<X> type)
-            throws MalformedReifiedGenericException, NullPointerException
+            throws NullPointerException
     {
         return new ReifiedGeneric<>(type);
     }
 
     /**
-     * This method wraps {@code Type} instances to {@code ReifiedGeneric} instances.
+     * Wraps {@code Type} instances into {@code ReifiedGeneric} instances.
      *
-     * <p>The main purpose of this method is to be able to integrat
+     * <p>The main purpose of this method is to be able to integrate
      * {@code ReifiedGeneric}-based APIs with {@code Type}-based ones.</p>
      *
      * @param type The {@code Type} instance to be wrapped. Must be a {@link ParameterizedType} or a {@link Class}.
@@ -80,6 +94,16 @@ public class ReifiedGeneric<X> {
         return raw().isAssignableFrom(someClass);
     }
 
+    public boolean isCompatibleWith(@NonNull Class<?> base) {
+        return base.isAssignableFrom(raw());
+    }
+
+    @SuppressWarnings("unchecked")
+    public <E> ReifiedGeneric<? extends E> cast(Class<E> base) {
+        if (!isCompatibleWith(base)) throw new ClassCastException();
+        return (ReifiedGeneric<? extends E>) this;
+    }
+
     @Override
     public String toString() {
         String name = (generic instanceof Class) ? ((Class<?>) generic).getName() : generic.toString();
@@ -88,7 +112,7 @@ public class ReifiedGeneric<X> {
 
     @Override
     public boolean equals(Object other) {
-        return other instanceof ReifiedGeneric && isSameOf((ReifiedGeneric) other);
+        return other instanceof ReifiedGeneric && isSameOf((ReifiedGeneric<?>) other);
     }
 
     @Override

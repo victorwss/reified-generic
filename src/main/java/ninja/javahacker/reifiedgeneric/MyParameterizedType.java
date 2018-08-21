@@ -9,9 +9,6 @@ import java.util.Objects;
 import java.util.stream.Stream;
 import lombok.experimental.PackagePrivate;
 
-/**
- * Copied from http://grepcode.com/file/repository.grepcode.com/java/root/jdk/openjdk/8u40-b25/sun/reflect/generics/reflectiveObjects/ParameterizedTypeImpl.java/
- */
 @PackagePrivate
 class MyParameterizedType implements ParameterizedType {
     private final Type[] actualTypeArguments;
@@ -22,7 +19,7 @@ class MyParameterizedType implements ParameterizedType {
     MyParameterizedType(Class<?> rawType, Type[] actualTypeArguments, Type ownerType) {
         this.actualTypeArguments = Stream.of(actualTypeArguments).map(MyParameterizedType::wrap).toArray(Type[]::new);
         this.rawType = rawType;
-        this.ownerType = (ownerType != null) ? ownerType : rawType.getDeclaringClass();
+        this.ownerType = ownerType != null ? ownerType : rawType.getDeclaringClass();
         validateConstructorArguments();
     }
 
@@ -34,9 +31,7 @@ class MyParameterizedType implements ParameterizedType {
 
     private void validateConstructorArguments() {
         TypeVariable<?>[] formals = rawType.getTypeParameters();
-        if (formals.length != actualTypeArguments.length) {
-            throw new MalformedParameterizedTypeException();
-        }
+        if (formals.length != actualTypeArguments.length) throw new MalformedParameterizedTypeException();
     }
 
     @Override
