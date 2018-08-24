@@ -1,12 +1,4 @@
-buildscript {
-    dependencies {
-        classpath "io.spring.gradle:dependency-management-plugin:1.0.6.RELEASE"
-    }
-}
-
 plugins {
-    id "io.spring.dependency-management" version "1.0.6.RELEASE"
-    id "com.github.johnrengelman.shadow" version "2.0.4"
     id "com.github.spotbugs" version "1.6.2"
     id "java-library"
     id "maven-publish"
@@ -20,7 +12,6 @@ version = "0.4.0"
 String artifactBaseName = "reified-generic"
 
 ext.javaCompiler = "1.9"
-ext.lombokEdge = false
 ext.doclint = false
 ext.extraCompilerArgs = [
     "--add-modules", "java.xml.ws.annotation",
@@ -42,7 +33,7 @@ ext.versionJaCoCo = "0.8.1"
 ext.versionJcip = "1.0"
 ext.versionJunit = "5.3.0-RC1"
 ext.versionJsr305 = "3.0.2"
-ext.versionLombok = "1.18.2"
+ext.versionLombok = "1.18.2" //"edge"
 ext.versionPmd = "6.6.0"
 ext.versionSpotBugs = "3.1.6"
 
@@ -55,7 +46,7 @@ dependencies {
     testCompileOnly group: 'org.apiguardian', name: 'apiguardian-api', version: "${versionApiguardian}"
 
     // Lombok
-    if (!lombokEdge) {
+    if (versionLombok != "edge") {
         annotationProcessor group: 'org.projectlombok', name: 'lombok', version: "${versionLombok}"
         compileOnly group: 'org.projectlombok', name: 'lombok', version: "${versionLombok}"
         testAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: "${versionLombok}"
