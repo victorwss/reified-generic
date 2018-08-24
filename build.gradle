@@ -8,55 +8,45 @@ plugins {
     id "io.spring.dependency-management" version "1.0.6.RELEASE"
     id "com.github.johnrengelman.shadow" version "2.0.4"
     id "com.github.spotbugs" version "1.6.2"
+    id "java-library"
+    id "maven-publish"
+    id "checkstyle"
+    id "signing"
+    id "jacoco"
 }
 
 group = "ninja.javahacker"
 version = "0.4.0"
-ext.moduleName = "ninja.javahacker.reified-generic"
+String artifactBaseName = "reified-generic"
+
+ext.javaCompiler = "1.9"
+ext.lombokEdge = false
+ext.doclint = false
+ext.extraCompilerArgs = [
+    "--add-modules", "java.xml.ws.annotation",
+    "--add-opens", "jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
+    "--add-opens", "jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED",
+    "--add-opens", "jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
+    "--add-opens", "jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED",
+    "--add-opens", "jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
+    "--add-opens", "jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
+    "--add-opens", "jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED",
+    "--add-opens", "jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
+    "--add-opens", "jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
+]
 
 ext.versionApiguardian = "1.0.0"
 ext.versionCheckstyle = "8.12"
 ext.versionFindSecBugs = "1.8.0"
+ext.versionJaCoCo = "0.8.1"
 ext.versionJcip = "1.0"
 ext.versionJunit = "5.3.0-RC1"
 ext.versionJsr305 = "3.0.2"
 ext.versionLombok = "1.18.2"
 ext.versionPmd = "6.6.0"
 ext.versionSpotBugs = "3.1.6"
-ext.lombokEdge = false
-
-apply plugin: 'base'
-apply plugin: 'java'
-apply plugin: 'maven-publish'
-apply plugin: 'checkstyle'
-
-checkstyle {
-    toolVersion = "${versionCheckstyle}"
-    configFile = rootProject.file("config/checkstyle/checkstyle.xml")
-    configProperties = [
-        "checkstyle.cache.file": "${buildDir}/checkstyle.cache",
-    ]
-    ignoreFailures = true
-    showViolations = true
-}
-
-spotbugs {
-    toolVersion = "${versionSpotBugs}"
-}
-
-repositories {
-    flatDir {
-        dirs 'libs'
-    }
-    mavenLocal()
-    jcenter()
-    mavenCentral()
-}
 
 dependencies {
-
-    // Find Security Bugs
-    compile group: 'com.h3xstream.findsecbugs', name: 'findsecbugs-plugin', version: "${versionFindSecBugs}"
 
     // JUnit
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: "${versionJunit}"
@@ -81,30 +71,58 @@ dependencies {
     compileOnly group: 'net.sourceforge.pmd', name: 'pmd', version: "${versionPmd}"
     testCompileOnly group: 'net.sourceforge.pmd', name: 'pmd', version: "${versionPmd}"
 
-    // SpotBugs
+    // SpotBugs + Find Security Bugs
+    compileOnly group: 'com.h3xstream.findsecbugs', name: 'findsecbugs-plugin', version: "${versionFindSecBugs}"
     compileOnly group: 'net.jcip', name: 'jcip-annotations', version: "${versionJcip}"
     compileOnly group: 'com.github.spotbugs', name: 'spotbugs-annotations', version: "${versionSpotBugs}"
     compileOnly group: 'com.google.code.findbugs', name: 'jsr305', version: "${versionJsr305}"
+    testCompileOnly group: 'com.h3xstream.findsecbugs', name: 'findsecbugs-plugin', version: "${versionFindSecBugs}"
     testCompileOnly group: 'net.jcip', name: 'jcip-annotations', version: "${versionJcip}"
     testCompileOnly group: 'com.github.spotbugs', name: 'spotbugs-annotations', version: "${versionSpotBugs}"
     testCompileOnly group: 'com.google.code.findbugs', name: 'jsr305', version: "${versionJsr305}"
 }
 
+println "Using Java " + org.gradle.api.JavaVersion.current() + "."
+
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+    mavenLocal()
+    jcenter()
+    mavenCentral()
+}
+
 tasks.withType(JavaCompile) {
-    sourceCompatibility = "1.9"
+    sourceCompatibility = javaCompiler
+    targetCompatibility = javaCompiler
     options.encoding = 'UTF-8'
     options.debug = true
-    options.compilerArgs << "-parameters" << "-Xlint:all,-processing" // << "-Xdoclint:all"
-    options.compilerArgs << "--add-modules" << "java.xml.ws.annotation"
-    options.compilerArgs << "--add-opens" << "jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED"
-    options.compilerArgs << "--add-opens" << "jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED"
-    options.compilerArgs << "--add-opens" << "jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED"
-    options.compilerArgs << "--add-opens" << "jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED"
-    options.compilerArgs << "--add-opens" << "jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED"
-    options.compilerArgs << "--add-opens" << "jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED"
-    options.compilerArgs << "--add-opens" << "jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED"
-    options.compilerArgs << "--add-opens" << "jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED"
-    options.compilerArgs << "--add-opens" << "jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED"
+    options.fork = true
+    options.compilerArgs << "-parameters" << "-Xlint:all,-processing"
+    if (doclint) options.compilerArgs << "-Xdoclint:all"
+    extraCompilerArgs.each { e -> options.compilerArgs << e }
+}
+
+tasks.withType(Javadoc) {
+    options.encoding = "UTF-8"
+    options.docEncoding = "UTF-8"
+    options.addBooleanOption('html5', true)
+    options.tags = ["apiNote:a:API Note:", "implSpec:a:Implementation Requirements:", "implNote:a:Implementation Note:"]
+}
+
+checkstyle {
+    toolVersion = "${versionCheckstyle}"
+    configFile = rootProject.file("config/checkstyle/checkstyle.xml")
+    configProperties = [
+        "checkstyle.cache.file": "${buildDir}/checkstyle.cache",
+    ]
+    ignoreFailures = true
+    showViolations = true
+}
+
+spotbugs {
+    toolVersion = "${versionSpotBugs}"
 }
 
 tasks.withType(com.github.spotbugs.SpotBugsTask) {
@@ -114,32 +132,59 @@ tasks.withType(com.github.spotbugs.SpotBugsTask) {
     }
 }
 
-task sourceJar(type: Jar) {
+jar {
+    baseName = artifactBaseName
+    duplicatesStrategy = "exclude"
+    inputs.property("moduleName", "${group}.${baseName}")
+    manifest {
+        attributes("Automatic-Module-Name": "${group}.${baseName}")
+    }
+}
+
+task sourcesJar(type: Jar) {
     from sourceSets.main.allSource
     classifier "sources"
 }
 
-publishing {
-    publications {
-        maven(MavenPublication) {
-            artifactId "reified-generic"
-            from components.java
-
-            artifact sourceJar {
-                classifier "sources"
-            }
-        }
-    }
-}
-
-jar {
-    duplicatesStrategy = "exclude"
-    inputs.property("moduleName", moduleName)
-    manifest {
-        attributes("Automatic-Module-Name": moduleName)
-    }
+task javadocJar(type: Jar) {
+    from javadoc
+    classifier "javadoc"
 }
 
 test {
     useJUnitPlatform()
+}
+
+jacoco {
+    toolVersion = "${versionJaCoCo}"
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        csv.enabled false
+        html.destination file("${buildDir}/jacocoHtml")
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId jar.baseName
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            pom {
+                developers {
+                    developer {
+                        name = 'Victor Williams Stafusa da Silva'
+                        email = 'victorwssilva@gmail.com'
+                    }
+                }
+            }
+        }
+    }
+    repositories {
+        mavenLocal()
+    }
 }
