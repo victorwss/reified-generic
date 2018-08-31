@@ -1,6 +1,7 @@
 package ninja.javahacker.reifiedgeneric;
 
 /**
+ * Thrown when an attempt to create an ill-formed or incomplete {@link ReifiedGeneric} occurs.
  * @author Victor Williams Stafusa da Silva
  */
 public class MalformedReifiedGenericException extends RuntimeException {

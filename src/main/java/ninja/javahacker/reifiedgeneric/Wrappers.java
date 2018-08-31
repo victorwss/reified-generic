@@ -1,5 +1,6 @@
 package ninja.javahacker.reifiedgeneric;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -16,11 +17,17 @@ import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 
 /**
+ * Utility methods used to wrap, unwrap and compose {@link ReifiedGeneric} instances.
  * @author Victor Williams Stafusa da Silva
  */
 @UtilityClass
 @SuppressWarnings("unchecked")
+@SuppressFBWarnings("CLI_CONSTANT_LIST_INDEX")
 public class Wrappers {
+
+    private static final int TYPE_INDEX = 0;
+    private static final int KEY_INDEX = 0;
+    private static final int VALUE_INDEX = 1;
 
     public ParameterizedType make(Class<?> rawType, Type[] actualTypeArguments, Type ownerType) {
         return new MyParameterizedType(rawType, actualTypeArguments, ownerType);
@@ -29,43 +36,50 @@ public class Wrappers {
     public <E> ReifiedGeneric<E> unwrapIterable(@NonNull ReifiedGeneric<? extends Iterable<E>> target) {
         Class<?> raw = target.raw();
         if (!Iterable.class.isAssignableFrom(raw)) throw new IllegalArgumentException(raw.getName() + " is not an Iterable.");
-        return (ReifiedGeneric<E>) ReifiedGeneric.forType(((ParameterizedType) target.getGeneric()).getActualTypeArguments()[0]);
+        ParameterizedType p = (ParameterizedType) target.getGeneric();
+        return (ReifiedGeneric<E>) ReifiedGeneric.forType(p.getActualTypeArguments()[TYPE_INDEX]);
     }
 
     public <E> ReifiedGeneric<E> unwrapIterator(@NonNull ReifiedGeneric<? extends Iterator<E>> target) {
         Class<?> raw = target.raw();
         if (!Iterator.class.isAssignableFrom(raw)) throw new IllegalArgumentException(raw.getName() + " is not an Iterator.");
-        return (ReifiedGeneric<E>) ReifiedGeneric.forType(((ParameterizedType) target.getGeneric()).getActualTypeArguments()[0]);
+        ParameterizedType p = (ParameterizedType) target.getGeneric();
+        return (ReifiedGeneric<E>) ReifiedGeneric.forType(p.getActualTypeArguments()[TYPE_INDEX]);
     }
 
     public <E> ReifiedGeneric<E> unwrapStream(@NonNull ReifiedGeneric<? extends Stream<E>> target) {
         Class<?> raw = target.raw();
         if (!Stream.class.isAssignableFrom(raw)) throw new IllegalArgumentException(raw.getName() + " is not an Stream.");
-        return (ReifiedGeneric<E>) ReifiedGeneric.forType(((ParameterizedType) target.getGeneric()).getActualTypeArguments()[0]);
+        ParameterizedType p = (ParameterizedType) target.getGeneric();
+        return (ReifiedGeneric<E>) ReifiedGeneric.forType(p.getActualTypeArguments()[TYPE_INDEX]);
     }
 
     public <E> ReifiedGeneric<E> unwrapMapKey(@NonNull ReifiedGeneric<? extends Map<E, ?>> target) {
         Class<?> raw = target.raw();
         if (!Map.class.isAssignableFrom(raw)) throw new IllegalArgumentException(raw.getName() + " is not a Map.");
-        return (ReifiedGeneric<E>) ReifiedGeneric.forType(((ParameterizedType) target.getGeneric()).getActualTypeArguments()[0]);
+        ParameterizedType p = (ParameterizedType) target.getGeneric();
+        return (ReifiedGeneric<E>) ReifiedGeneric.forType(p.getActualTypeArguments()[KEY_INDEX]);
     }
 
     public <E> ReifiedGeneric<E> unwrapMapValue(@NonNull ReifiedGeneric<? extends Map<?, E>> target) {
         Class<?> raw = target.raw();
         if (!Map.class.isAssignableFrom(raw)) throw new IllegalArgumentException(raw.getName() + " is not a Map.");
-        return (ReifiedGeneric<E>) ReifiedGeneric.forType(((ParameterizedType) target.getGeneric()).getActualTypeArguments()[1]);
+        ParameterizedType p = (ParameterizedType) target.getGeneric();
+        return (ReifiedGeneric<E>) ReifiedGeneric.forType(p.getActualTypeArguments()[VALUE_INDEX]);
     }
 
     public <E> ReifiedGeneric<E> unwrapMapEntryKey(@NonNull ReifiedGeneric<? extends Map.Entry<E, ?>> target) {
         Class<?> raw = target.raw();
         if (!Map.Entry.class.isAssignableFrom(raw)) throw new IllegalArgumentException(raw.getName() + " is not a Map.Entry.");
-        return (ReifiedGeneric<E>) ReifiedGeneric.forType(((ParameterizedType) target.getGeneric()).getActualTypeArguments()[0]);
+        ParameterizedType p = (ParameterizedType) target.getGeneric();
+        return (ReifiedGeneric<E>) ReifiedGeneric.forType(p.getActualTypeArguments()[KEY_INDEX]);
     }
 
     public <E> ReifiedGeneric<E> unwrapMapEntryValue(@NonNull ReifiedGeneric<? extends Map.Entry<?, E>> target) {
         Class<?> raw = target.raw();
         if (!Map.Entry.class.isAssignableFrom(raw)) throw new IllegalArgumentException(raw.getName() + " is not a Map.Entry.");
-        return (ReifiedGeneric<E>) ReifiedGeneric.forType(((ParameterizedType) target.getGeneric()).getActualTypeArguments()[1]);
+        ParameterizedType p = (ParameterizedType) target.getGeneric();
+        return (ReifiedGeneric<E>) ReifiedGeneric.forType(p.getActualTypeArguments()[VALUE_INDEX]);
     }
 
     public <E> ReifiedGeneric<Iterable<E>> iterable(@NonNull ReifiedGeneric<E> base) {

@@ -1,5 +1,6 @@
 package ninja.javahacker.test.reifiedgeneric;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
@@ -30,10 +31,11 @@ public class WrappersTest {
 
     @Test
     @SuppressWarnings("unchecked")
+    @SuppressFBWarnings("RFI_SET_ACCESSIBLE")
     public void testWrappersUninstantiable() throws Exception {
         Constructor<? extends Wrappers>[] ctors = (Constructor<? extends Wrappers>[]) Wrappers.class.getDeclaredConstructors();
         Assertions.assertEquals(1, ctors.length);
-        Assertions.assertEquals(false, Modifier.isPublic(ctors[0].getModifiers()));
+        Assertions.assertFalse(Modifier.isPublic(ctors[0].getModifiers()));
         ctors[0].setAccessible(true);
         InvocationTargetException ite = Assertions.assertThrows(InvocationTargetException.class, () -> ctors[0].newInstance());
         Assertions.assertTrue(ite.getCause() instanceof UnsupportedOperationException);
@@ -113,8 +115,8 @@ public class WrappersTest {
         Assertions.assertEquals(new ReifiedGeneric<NavigableMap<String, Integer>>() {}, Wrappers.navigableMap(THING, OTHER));
     }
 
-    private static void npe(String name, Executable e) {
-        NullPointerException npe = Assertions.assertThrows(NullPointerException.class, e);
+    private static void nonNullWasNull(String name, Executable e) {
+        IllegalArgumentException npe = Assertions.assertThrows(IllegalArgumentException.class, e);
         Assertions.assertEquals(name + " is marked @NonNull but is null", npe.getMessage());
     }
 
@@ -122,22 +124,22 @@ public class WrappersTest {
     @SuppressWarnings("null")
     public void testUnwrapNull() {
         Assertions.assertAll("nulls",
-                () -> npe("base", () -> Wrappers.iterable(NIL)),
-                () -> npe("base", () -> Wrappers.iterator(NIL)),
-                () -> npe("base", () -> Wrappers.stream(NIL)),
-                () -> npe("base", () -> Wrappers.collection(NIL)),
-                () -> npe("base", () -> Wrappers.list(NIL)),
-                () -> npe("base", () -> Wrappers.set(NIL)),
-                () -> npe("base", () -> Wrappers.sortedSet(NIL)),
-                () -> npe("base", () -> Wrappers.navigableSet(NIL)),
-                () -> npe("base1", () -> Wrappers.map(NIL, THING)),
-                () -> npe("base1", () -> Wrappers.entry(NIL, THING)),
-                () -> npe("base1", () -> Wrappers.sortedMap(NIL, THING)),
-                () -> npe("base1", () -> Wrappers.navigableMap(NIL, THING)),
-                () -> npe("base2", () -> Wrappers.map(THING, NIL)),
-                () -> npe("base2", () -> Wrappers.entry(THING, NIL)),
-                () -> npe("base2", () -> Wrappers.sortedMap(THING, NIL)),
-                () -> npe("base2", () -> Wrappers.navigableMap(THING, NIL))
+                () -> nonNullWasNull("base", () -> Wrappers.iterable(NIL)),
+                () -> nonNullWasNull("base", () -> Wrappers.iterator(NIL)),
+                () -> nonNullWasNull("base", () -> Wrappers.stream(NIL)),
+                () -> nonNullWasNull("base", () -> Wrappers.collection(NIL)),
+                () -> nonNullWasNull("base", () -> Wrappers.list(NIL)),
+                () -> nonNullWasNull("base", () -> Wrappers.set(NIL)),
+                () -> nonNullWasNull("base", () -> Wrappers.sortedSet(NIL)),
+                () -> nonNullWasNull("base", () -> Wrappers.navigableSet(NIL)),
+                () -> nonNullWasNull("base1", () -> Wrappers.map(NIL, THING)),
+                () -> nonNullWasNull("base1", () -> Wrappers.entry(NIL, THING)),
+                () -> nonNullWasNull("base1", () -> Wrappers.sortedMap(NIL, THING)),
+                () -> nonNullWasNull("base1", () -> Wrappers.navigableMap(NIL, THING)),
+                () -> nonNullWasNull("base2", () -> Wrappers.map(THING, NIL)),
+                () -> nonNullWasNull("base2", () -> Wrappers.entry(THING, NIL)),
+                () -> nonNullWasNull("base2", () -> Wrappers.sortedMap(THING, NIL)),
+                () -> nonNullWasNull("base2", () -> Wrappers.navigableMap(THING, NIL))
         );
     }
 }

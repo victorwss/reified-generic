@@ -10,8 +10,12 @@ import java.util.stream.Stream;
 import lombok.NonNull;
 import lombok.experimental.PackagePrivate;
 
-// This class requires at least Java 9 because the ParameterizedTypeImpl
-// class from Java 8 or less has a buggy toString() method.
+/**
+ * The {@link ParameterizedType} implementation is not public, but this tool need to instantiate some of them.
+ * <p>So, this class was mostly copied from Java 9's internal {@code ParameterizedTypeImpl}.</p>
+ * <p>Note that Java 8 or before has a buggy implementation of {@code ParameterizedTypeImpl} {@link #toString()} method.</p>
+ * @author Victor Williams Stafusa da Silva
+ */
 @PackagePrivate
 class MyParameterizedType implements ParameterizedType {
     private final Type[] actualTypeArguments;
@@ -79,10 +83,10 @@ class MyParameterizedType implements ParameterizedType {
             if (ownerType instanceof Class) {
                 sb.append(((Class<?>) ownerType).getName());
             } else {
-                sb.append(ownerType.toString());
+                sb.append(ownerType);
             }
 
-            sb.append("$");
+            sb.append('$');
 
             if (ownerType instanceof ParameterizedType) {
                 // Find simple name of nested type by removing the
@@ -96,14 +100,14 @@ class MyParameterizedType implements ParameterizedType {
         }
 
         if (actualTypeArguments != null && actualTypeArguments.length > 0) {
-            sb.append("<");
+            sb.append('<');
             boolean first = true;
             for (Type t: actualTypeArguments) {
                 if (!first) sb.append(", ");
                 sb.append(t.getTypeName());
                 first = false;
             }
-            sb.append(">");
+            sb.append('>');
         }
 
         return sb.toString();

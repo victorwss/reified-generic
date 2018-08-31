@@ -1,5 +1,6 @@
 package ninja.javahacker.reifiedgeneric;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import lombok.NonNull;
@@ -22,6 +23,7 @@ public class ReifiedGeneric<X> {
 
     private final Type generic;
 
+    @SuppressFBWarnings("LEST_LOST_EXCEPTION_STACK_TRACE")
     protected ReifiedGeneric() throws MalformedReifiedGenericException {
         try {
             this.generic = ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
@@ -45,33 +47,32 @@ public class ReifiedGeneric<X> {
     }
 
     /**
-     * Wraps {@code Class} instances into {@code ReifiedGeneric} instances.
+     * Wraps {@link Class} instances into {@code ReifiedGeneric} instances.
      *
      * <p>The main purpose of this method is to be able to integrate
-     * {@code ReifiedGeneric}-based APIs with {@code Class}-based ones.</p>
+     * {@code ReifiedGeneric}-based APIs with {@link Class}-based ones.</p>
      *
-     * @param type The {@code Class} instance to be wrapped.
+     * @param type The {@link Class} instance to be wrapped.
+     * @param <X> The compile-time generic to be reified.
      * @return The wrapping {@code ReifiedGeneric} instance.
-     * @throws NullPointerException If {@code type} is {@code null}.
+     * @throws IllegalArgumentException If {@code type} is {@code null}.
      */
-    public static <X> ReifiedGeneric<X> forClass(@NonNull Class<X> type)
-            throws NullPointerException
-    {
+    public static <X> ReifiedGeneric<X> forClass(@NonNull Class<X> type) {
         return new ReifiedGeneric<>(type);
     }
 
     /**
-     * Wraps {@code Type} instances into {@code ReifiedGeneric} instances.
+     * Wraps {@link Type} instances into {@code ReifiedGeneric} instances.
      *
      * <p>The main purpose of this method is to be able to integrate
-     * {@code ReifiedGeneric}-based APIs with {@code Type}-based ones.</p>
+     * {@code ReifiedGeneric}-based APIs with {@link Type}-based ones.</p>
      *
-     * @param type The {@code Type} instance to be wrapped. Must be a {@link ParameterizedType} or a {@link Class}.
+     * @param type The {@link Type} instance to be wrapped. Must be a {@link ParameterizedType} or a {@link Class}.
      * @return The wrapping {@code ReifiedGeneric} instance.
-     * @throws NullPointerException If {@code type} is {@code null}.
+     * @throws IllegalArgumentException If {@code type} is {@code null}.
      * @throws MalformedReifiedGenericException If {@code type} is not a {@link ParameterizedType} nor a {@link Class}.
      */
-    public static ReifiedGeneric<?> forType(@NonNull Type type) throws MalformedReifiedGenericException, NullPointerException {
+    public static ReifiedGeneric<?> forType(@NonNull Type type) {
         return new ReifiedGeneric<>(type);
     }
 
