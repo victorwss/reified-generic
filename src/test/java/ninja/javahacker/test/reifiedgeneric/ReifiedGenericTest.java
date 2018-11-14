@@ -1,11 +1,11 @@
 package ninja.javahacker.test.reifiedgeneric;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
 import ninja.javahacker.reifiedgeneric.MalformedReifiedGenericException;
 import ninja.javahacker.reifiedgeneric.ReifiedGeneric;
+import ninja.javahacker.reifiedgeneric.Token;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -17,7 +17,7 @@ public class ReifiedGenericTest {
 
     private void testString(ReifiedGeneric<?> s) {
         Assertions.assertAll("tests",
-                () -> Assertions.assertEquals(String.class, s.getGeneric()),
+                () -> Assertions.assertEquals(String.class, s.getType()),
                 () -> Assertions.assertEquals(String.class, s.raw()),
                 () -> Assertions.assertEquals("ReifiedGeneric<" + String.class.getName() + ">", s.toString()),
                 () -> Assertions.assertTrue(s.isAssignableFrom(String.class)),
@@ -27,32 +27,32 @@ public class ReifiedGenericTest {
 
     @Test
     public void testClassGeneric1() {
-        ReifiedGeneric<String> s1 = new ReifiedGeneric<String>() {};
+        ReifiedGeneric<String> s1 = new Token<String>() {}.reify();
         testString(s1);
     }
 
     @Test
     public void testClassGeneric2() {
-        ReifiedGeneric<String> s2 = ReifiedGeneric.forClass(String.class);
+        ReifiedGeneric<String> s2 = ReifiedGeneric.of(String.class);
         testString(s2);
     }
 
     @Test
     public void testClassGeneric3() {
-        ReifiedGeneric<?> s2 = ReifiedGeneric.forType(String.class);
+        ReifiedGeneric<?> s2 = ReifiedGeneric.of(String.class);
         testString(s2);
     }
 
     @Test
     public void testParameterizedGeneric() {
-        ReifiedGeneric<List<String>> s1 = new ReifiedGeneric<List<String>>() {};
-        ReifiedGeneric<?> s2 = ReifiedGeneric.forType(s1.getGeneric());
+        ReifiedGeneric<List<String>> s1 = new Token<List<String>>() {}.reify();
+        ReifiedGeneric<?> s2 = ReifiedGeneric.of(s1.getType());
         Assertions.assertAll("tests",
-                () -> Assertions.assertEquals("java.util.List<java.lang.String>", s1.getGeneric().getTypeName()),
-                () -> Assertions.assertEquals("ReifiedGeneric<" + s1.getGeneric().getTypeName() + ">", s1.toString()),
+                () -> Assertions.assertEquals("java.util.List<java.lang.String>", s1.getType().getTypeName()),
+                () -> Assertions.assertEquals("ReifiedGeneric<" + s1.getType().getTypeName() + ">", s1.toString()),
                 () -> Assertions.assertEquals(List.class, s1.raw()),
-                () -> Assertions.assertEquals("java.util.List<java.lang.String>", s2.getGeneric().getTypeName()),
-                () -> Assertions.assertEquals("ReifiedGeneric<" + s2.getGeneric().getTypeName() + ">", s2.toString()),
+                () -> Assertions.assertEquals("java.util.List<java.lang.String>", s2.getType().getTypeName()),
+                () -> Assertions.assertEquals("ReifiedGeneric<" + s2.getType().getTypeName() + ">", s2.toString()),
                 () -> Assertions.assertEquals(List.class, s2.raw()),
                 () -> Assertions.assertTrue(s1.isAssignableFrom(List.class)),
                 () -> Assertions.assertTrue(s1.isCompatibleWith(List.class)),
@@ -66,14 +66,14 @@ public class ReifiedGenericTest {
 
     @Test
     public void testComplexParameterizedGeneric() {
-        ReifiedGeneric<List<? extends String>> s1 = new ReifiedGeneric<List<? extends String>>() {};
-        ReifiedGeneric<?> s2 = ReifiedGeneric.forType(s1.getGeneric());
+        ReifiedGeneric<List<? extends String>> s1 = new Token<List<? extends String>>() {}.reify();
+        ReifiedGeneric<?> s2 = ReifiedGeneric.of(s1.getType());
         Assertions.assertAll("tests",
-                () -> Assertions.assertEquals("java.util.List<? extends java.lang.String>", s1.getGeneric().getTypeName()),
-                () -> Assertions.assertEquals("ReifiedGeneric<" + s1.getGeneric().getTypeName() + ">", s1.toString()),
+                () -> Assertions.assertEquals("java.util.List<? extends java.lang.String>", s1.getType().getTypeName()),
+                () -> Assertions.assertEquals("ReifiedGeneric<" + s1.getType().getTypeName() + ">", s1.toString()),
                 () -> Assertions.assertEquals(List.class, s1.raw()),
-                () -> Assertions.assertEquals("java.util.List<? extends java.lang.String>", s2.getGeneric().getTypeName()),
-                () -> Assertions.assertEquals("ReifiedGeneric<" + s2.getGeneric().getTypeName() + ">", s2.toString()),
+                () -> Assertions.assertEquals("java.util.List<? extends java.lang.String>", s2.getType().getTypeName()),
+                () -> Assertions.assertEquals("ReifiedGeneric<" + s2.getType().getTypeName() + ">", s2.toString()),
                 () -> Assertions.assertEquals(List.class, s2.raw()),
                 () -> Assertions.assertTrue(s1.isAssignableFrom(List.class)),
                 () -> Assertions.assertTrue(s1.isCompatibleWith(List.class)),
@@ -86,15 +86,19 @@ public class ReifiedGenericTest {
     }
 
     private <X> X foo1() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     private <X> X[] foo2() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     private List<?> foo3() {
-        return null;
+        throw new UnsupportedOperationException();
+    }
+
+    private <T> List<T> foo4() {
+        throw new UnsupportedOperationException();
     }
 
     private void shouldGetException(String message, Executable e) {
@@ -123,13 +127,22 @@ public class ReifiedGenericTest {
     }
 
     private <X> ReifiedGeneric<X> createsTypeVariable() {
-        return new ReifiedGeneric<X>() {};
+        return new Token<X>() {}.reify();
+    }
+
+    @Test
+    public void errorWithInnerTypeVariableGeneric() {
+        createsInnerTypeVariable();
+    }
+
+    private <X> ReifiedGeneric<List<X>> createsInnerTypeVariable() {
+        return new Token<List<X>>() {}.reify();
     }
 
     @Test
     public void errorWithForTypeVariableGeneric() throws NoSuchMethodException {
         Type typeVariable = ReifiedGenericTest.class.getDeclaredMethod("foo1").getGenericReturnType();
-        shouldBeInstantiable(() -> ReifiedGeneric.forType(typeVariable));
+        shouldBeInstantiable(() -> ReifiedGeneric.of(typeVariable));
     }
 
     @Test
@@ -138,21 +151,20 @@ public class ReifiedGenericTest {
     }
 
     private <X> ReifiedGeneric<X[]> createsGenericArray() {
-        return new ReifiedGeneric<X[]>() {};
+        return new Token<X[]>() {}.reify();
     }
 
     @Test
-    @SuppressFBWarnings("SEC_SIDE_EFFECT_CONSTRUCTOR")
     public void errorWithForTypeGenericArray() throws NoSuchMethodException {
         Type genericArray = ReifiedGenericTest.class.getDeclaredMethod("foo2").getGenericReturnType();
-        shouldBeInstantiable(() -> ReifiedGeneric.forType(genericArray));
+        shouldBeInstantiable(() -> ReifiedGeneric.of(genericArray));
     }
 
     @Test
     public void errorWithForTypeWildcard() throws NoSuchMethodException {
         Type parameterized = ReifiedGenericTest.class.getDeclaredMethod("foo3").getGenericReturnType();
         Type wildcard = ((ParameterizedType) parameterized).getActualTypeArguments()[0];
-        shouldBeInstantiable(() -> ReifiedGeneric.forType(wildcard));
+        shouldBeInstantiable(() -> ReifiedGeneric.of(wildcard));
     }
 
     @Test
@@ -160,29 +172,30 @@ public class ReifiedGenericTest {
         illDefined(this::createsRawType);
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({"rawtypes", "unchecked"})
     private ReifiedGeneric createsRawType() {
-        return new ReifiedGeneric() {};
+        return new Token() {}.reify();
     }
 
     @Test
     public void errorForClassNull() {
-        nonNullWasNull("type", () -> ReifiedGeneric.forClass(null));
+        nonNullWasNull("type", () -> ReifiedGeneric.of(null));
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void errorForTypeNull() {
-        nonNullWasNull("type", () -> ReifiedGeneric.forType(null));
+        nonNullWasNull("type", () -> ReifiedGeneric.of((Type) null));
     }
 
     @Test
     public void testEqualsIsSameOfAndHashCode() {
-        ReifiedGeneric<List<String>> s1a = new ReifiedGeneric<List<String>>() {};
-        ReifiedGeneric<List<String>> s1b = new ReifiedGeneric<List<String>>() {};
-        ReifiedGeneric<List<?>> s2a = new ReifiedGeneric<List<?>>() {};
-        ReifiedGeneric<List<?>> s2b = new ReifiedGeneric<List<?>>() {};
-        ReifiedGeneric<String> s3a = new ReifiedGeneric<String>() {};
-        ReifiedGeneric<String> s3b = new ReifiedGeneric<String>() {};
+        ReifiedGeneric<List<String>> s1a = new Token<List<String>>() {}.reify();
+        ReifiedGeneric<List<String>> s1b = new Token<List<String>>() {}.reify();
+        ReifiedGeneric<List<?>> s2a = new Token<List<?>>() {}.reify();
+        ReifiedGeneric<List<?>> s2b = new Token<List<?>>() {}.reify();
+        ReifiedGeneric<String> s3a = new Token<String>() {}.reify();
+        ReifiedGeneric<String> s3b = new Token<String>() {}.reify();
 
         Assertions.assertAll("equals",
                 () -> Assertions.assertEquals(s1a, s1b),
@@ -218,9 +231,9 @@ public class ReifiedGenericTest {
     @Test
     @SuppressWarnings("ObjectEqualsNull")
     public void testEqualsNull() {
-        ReifiedGeneric<List<String>> s1 = new ReifiedGeneric<List<String>>() {};
-        ReifiedGeneric<List<?>> s2 = new ReifiedGeneric<List<?>>() {};
-        ReifiedGeneric<String> s3 = new ReifiedGeneric<String>() {};
+        ReifiedGeneric<List<String>> s1 = new Token<List<String>>() {}.reify();
+        ReifiedGeneric<List<?>> s2 = new Token<List<?>>() {}.reify();
+        ReifiedGeneric<String> s3 = new Token<String>() {}.reify();
         Assertions.assertAll("equals(null)",
                 () -> Assertions.assertFalse(s1.equals(null)),
                 () -> Assertions.assertFalse(s2.equals(null)),
@@ -231,9 +244,9 @@ public class ReifiedGenericTest {
     @Test
     @SuppressWarnings("IncompatibleEquals")
     public void testIncompatibleEquals() {
-        ReifiedGeneric<List<String>> s1 = new ReifiedGeneric<List<String>>() {};
-        ReifiedGeneric<List<?>> s2 = new ReifiedGeneric<List<?>>() {};
-        ReifiedGeneric<String> s3 = new ReifiedGeneric<String>() {};
+        ReifiedGeneric<List<String>> s1 = new Token<List<String>>() {}.reify();
+        ReifiedGeneric<List<?>> s2 = new Token<List<?>>() {}.reify();
+        ReifiedGeneric<String> s3 = new Token<String>() {}.reify();
         Assertions.assertAll("equals(String)",
                 () -> Assertions.assertFalse(s1.equals("foo")),
                 () -> Assertions.assertFalse(s2.equals("foo")),

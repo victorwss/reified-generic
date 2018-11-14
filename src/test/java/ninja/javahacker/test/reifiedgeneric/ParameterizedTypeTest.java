@@ -29,23 +29,27 @@ public class ParameterizedTypeTest {
     }
 
     private static FooA<String> foo1() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     private static FooA<String>.FooB foo2() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     private static FooA<String>.FooC<Integer> foo3() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     private static FooA<String>.FooC<Integer>.FooD<Long> foo4() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     private static List<String> foo5() {
-        return null;
+        throw new UnsupportedOperationException();
+    }
+
+    private static <T> List<T> foo6() {
+        throw new UnsupportedOperationException();
     }
 
     private static int unhash(ParameterizedType x) {
@@ -57,8 +61,8 @@ public class ParameterizedTypeTest {
     }
 
     private static void verify(ParameterizedType a, ParameterizedType b, String name) {
-        Type aowner = a.getOwnerType();
-        Type bowner = b.getOwnerType();
+        Type ownerA = a.getOwnerType();
+        Type ownerB = b.getOwnerType();
         Assertions.assertAll(
                 () -> Assertions.assertEquals(a, b),
                 () -> Assertions.assertEquals(b, a),
@@ -67,8 +71,8 @@ public class ParameterizedTypeTest {
                 () -> Assertions.assertEquals("W" + a.hashCode(), "W" + b.hashCode()),
                 () -> Assertions.assertEquals("x" + a.getRawType().hashCode(), "x" + b.getRawType().hashCode()),
                 () -> Assertions.assertEquals(
-                        "y" + (aowner == null ? 0 : aowner.hashCode()),
-                        "y" + (bowner == null ? 0 : bowner.hashCode())),
+                        "y" + (ownerA == null ? 0 : ownerA.hashCode()),
+                        "y" + (ownerB == null ? 0 : ownerB.hashCode())),
                 () -> Assertions.assertEquals(
                         "z" + Arrays.hashCode(a.getActualTypeArguments()),
                         "z" + Arrays.hashCode(b.getActualTypeArguments())),
@@ -103,5 +107,12 @@ public class ParameterizedTypeTest {
     public void deepParameterizedInnerClassTest() throws Exception {
         ParameterizedType t = Wrappers.make(FooA.FooC.FooD.class, new Type[] {Long.class}, reflect("foo3"));
         verify(reflect("foo4"), t, NAME3);
+    }
+
+    @Test
+    public void oopsParameterizedTest() throws Exception {
+        ParameterizedType p = reflect("foo6");
+        ParameterizedType t = Wrappers.make(List.class, p.getActualTypeArguments(), null);
+        verify(p, t, "java.util.List<T>");
     }
 }

@@ -1,5 +1,6 @@
 package ninja.javahacker.reifiedgeneric;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.lang.reflect.MalformedParameterizedTypeException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -12,28 +13,31 @@ import lombok.experimental.PackagePrivate;
 
 /**
  * The {@link ParameterizedType} implementation is not public, but this tool need to instantiate some of them.
- * <p>So, this class was mostly copied from Java 9's internal {@code ParameterizedTypeImpl}.</p>
+ * So, this class was mostly copied from Java 9's internal {@code ParameterizedTypeImpl}.
  * <p>Note that Java 8 or before has a buggy implementation of {@code ParameterizedTypeImpl} {@link #toString()} method.</p>
  * @author Victor Williams Stafusa da Silva
  */
 @PackagePrivate
-class MyParameterizedType implements ParameterizedType {
+final class MyParameterizedType implements ParameterizedType {
     private final Type[] actualTypeArguments;
     private final Class<?> rawType;
     private final Type ownerType;
 
-    @PackagePrivate
-    MyParameterizedType(@NonNull Class<?> rawType, @NonNull Type[] actualTypeArguments, Type ownerType) {
+    public MyParameterizedType(@NonNull Class<?> rawType, @NonNull Type[] actualTypeArguments, Type ownerType) {
         this.actualTypeArguments = Stream.of(actualTypeArguments).map(MyParameterizedType::wrap).toArray(Type[]::new);
         this.rawType = rawType;
         this.ownerType = ownerType != null ? ownerType : rawType.getDeclaringClass();
         validateConstructorArguments();
     }
 
-    private static Type wrap(Type other) {
-        if (!(other instanceof ParameterizedType) || (other instanceof MyParameterizedType)) return other;
-        ParameterizedType pt = (ParameterizedType) other;
-        return new MyParameterizedType((Class<?>) pt.getRawType(), pt.getActualTypeArguments(), pt.getOwnerType());
+    public static Type wrap(@NonNull Type other) {
+        return other instanceof ParameterizedType ? wrap((ParameterizedType) other) : other;
+    }
+
+    public static MyParameterizedType wrap(@NonNull ParameterizedType other) {
+        return other instanceof MyParameterizedType
+                ? (MyParameterizedType) other
+                : new MyParameterizedType((Class<?>) other.getRawType(), other.getActualTypeArguments(), other.getOwnerType());
     }
 
     private void validateConstructorArguments() {
@@ -57,6 +61,10 @@ class MyParameterizedType implements ParameterizedType {
     }
 
     @Override
+    @SuppressFBWarnings(
+            value = "NSE_NON_SYMMETRIC_EQUALS",
+            justification = "Should be equals to other ParameterizedType implementations."
+    )
     public boolean equals(Object o) {
         if (!(o instanceof ParameterizedType)) return false;
         if (this == o) return true;

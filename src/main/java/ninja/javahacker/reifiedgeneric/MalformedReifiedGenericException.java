@@ -14,11 +14,19 @@ public class MalformedReifiedGenericException extends RuntimeException {
         super(message, null);
     }
 
+    private MalformedReifiedGenericException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
     public static MalformedReifiedGenericException shouldBeInstantiable() {
         return new MalformedReifiedGenericException(SHOULD_BE_INSTANTIABLE);
     }
 
     public static MalformedReifiedGenericException illDefined() {
         return new MalformedReifiedGenericException(ILL_DEFINED);
+    }
+
+    public static MalformedReifiedGenericException illDefined(Throwable cause) {
+        return new MalformedReifiedGenericException(ILL_DEFINED, cause);
     }
 }

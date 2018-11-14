@@ -10,41 +10,16 @@ import lombok.NonNull;
  *
  * <p>Instances should be created with this:</p>
  * <pre>
- * ReifiedGeneric&lt;String&gt; t1 = new ReifiedGeneric&lt;&gt;() {};
- * ReifiedGeneric&lt;Map&lt;String, Thread&gt;&gt; t2 = new ReifiedGeneric&lt;&gt;() {};
- * ReifiedGeneric&lt;Float&gt; t3 = ReifiedGeneric.forClass(Float.class) {};
+ * ReifiedGeneric&lt;String&gt; t1 = new Token&lt;&gt;() {}.reify();
+ * ReifiedGeneric&lt;Map&lt;String, Thread&gt;&gt; t2 = new Token&lt;&gt;() {}.reify();
+ * ReifiedGeneric&lt;Float&gt; t3 = ReifiedGeneric.of(Float.class) {};
  * Type x = ...;
- * ReifiedGeneric&lt;?&gt; tx = TargetType.forType(t);
+ * ReifiedGeneric&lt;?&gt; tx = ReifiedGeneric.of(t);
  * </pre>
  * @param <X> The compile-time generic to be reified.
  * @author Victor Williams Stafusa da Silva
  */
-public class ReifiedGeneric<X> {
-
-    private final Type generic;
-
-    @SuppressFBWarnings("LEST_LOST_EXCEPTION_STACK_TRACE")
-    protected ReifiedGeneric() throws MalformedReifiedGenericException {
-        try {
-            this.generic = ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
-        } catch (ClassCastException | IndexOutOfBoundsException | NullPointerException e) {
-            throw MalformedReifiedGenericException.illDefined();
-        }
-        if (!(this.generic instanceof ParameterizedType) && !(this.generic instanceof Class)) {
-            throw MalformedReifiedGenericException.shouldBeInstantiable();
-        }
-    }
-
-    private ReifiedGeneric(Type type) throws MalformedReifiedGenericException {
-        if (!(type instanceof ParameterizedType) && !(type instanceof Class)) {
-            throw MalformedReifiedGenericException.shouldBeInstantiable();
-        }
-        this.generic = type;
-    }
-
-    private ReifiedGeneric(Class<?> type) {
-        this.generic = type;
-    }
+public interface ReifiedGeneric<X> extends Type {
 
     /**
      * Wraps {@link Class} instances into {@code ReifiedGeneric} instances.
@@ -57,8 +32,8 @@ public class ReifiedGeneric<X> {
      * @return The wrapping {@code ReifiedGeneric} instance.
      * @throws IllegalArgumentException If {@code type} is {@code null}.
      */
-    public static <X> ReifiedGeneric<X> forClass(@NonNull Class<X> type) {
-        return new ReifiedGeneric<>(type);
+    public static <X> ReifiedGeneric<X> of(@NonNull Class<X> type) {
+        return ClassReifiedGeneric.forClass(type);
     }
 
     /**
@@ -72,52 +47,32 @@ public class ReifiedGeneric<X> {
      * @throws IllegalArgumentException If {@code type} is {@code null}.
      * @throws MalformedReifiedGenericException If {@code type} is not a {@link ParameterizedType} nor a {@link Class}.
      */
-    public static ReifiedGeneric<?> forType(@NonNull Type type) {
-        return new ReifiedGeneric<>(type);
+    @SuppressFBWarnings("ITC_INHERITANCE_TYPE_CHECKING")
+    public static ReifiedGeneric<?> of(@NonNull Type type) {
+        if (type instanceof Class<?>) return ClassReifiedGeneric.forClass((Class<?>) type);
+        if (type instanceof ParameterizedType) return ParameterizedReifiedGeneric.forType((ParameterizedType) type);
+        throw MalformedReifiedGenericException.shouldBeInstantiable();
     }
 
-    public Type getGeneric() {
-        return generic;
+    public Type getType();
+
+    public default boolean isSameOf(@NonNull ReifiedGeneric<?> other) {
+        return this.equals(other);
     }
 
-    public boolean isSameOf(@NonNull ReifiedGeneric<?> other) {
-        return generic.equals(other.generic);
-    }
+    public Class<X> raw();
 
-    @SuppressWarnings("unchecked")
-    public Class<X> raw() {
-        if (generic instanceof Class) return (Class<X>) generic;
-        ParameterizedType pt = (ParameterizedType) generic;
-        return (Class<X>) pt.getRawType();
-    }
-
-    public boolean isAssignableFrom(@NonNull Class<?> someClass) {
+    public default boolean isAssignableFrom(@NonNull Class<?> someClass) {
         return raw().isAssignableFrom(someClass);
     }
 
-    public boolean isCompatibleWith(@NonNull Class<?> base) {
+    public default boolean isCompatibleWith(@NonNull Class<?> base) {
         return base.isAssignableFrom(raw());
     }
 
     @SuppressWarnings("unchecked")
-    public <E> ReifiedGeneric<? extends E> cast(Class<E> base) {
+    public default <E> ReifiedGeneric<? extends E> cast(Class<E> base) {
         if (!isCompatibleWith(base)) throw new ClassCastException();
         return (ReifiedGeneric<? extends E>) this;
-    }
-
-    @Override
-    public String toString() {
-        String name = (generic instanceof Class) ? ((Class<?>) generic).getName() : generic.toString();
-        return "ReifiedGeneric<" + name + ">";
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        return other instanceof ReifiedGeneric && isSameOf((ReifiedGeneric<?>) other);
-    }
-
-    @Override
-    public int hashCode() {
-        return generic.hashCode();
     }
 }

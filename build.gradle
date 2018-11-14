@@ -1,5 +1,5 @@
 plugins {
-    id "com.github.spotbugs" version "1.6.2"
+    id "com.github.spotbugs" version "1.6.5"
     id "java-library"
     id "maven-publish"
     id "checkstyle"
@@ -8,11 +8,11 @@ plugins {
 }
 
 group = "ninja.javahacker"
-version = "0.4.0"
+version = "1.0.0"
 ext.artifactBaseName = "reified-generic"
 ext.moduleName = "ninja.javahacker.reifiedgeneric"
 
-ext.javaCompiler = "1.9"
+ext.javaCompiler = "11"
 ext.doclint = false
 ext.extraCompilerArgs = [
     "--add-opens", "jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
@@ -27,16 +27,16 @@ ext.extraCompilerArgs = [
 ]
 
 ext.versionApiguardian = "1.0.0"
-ext.versionCheckstyle = "8.12"
+ext.versionCheckstyle = "8.14"
 ext.versionFbContrib = "7.4.3.sb"
 ext.versionFindSecBugs = "1.8.0"
-ext.versionJaCoCo = "0.8.1"
+ext.versionJaCoCo = "0.8.2"
 ext.versionJcip = "1.0"
-ext.versionJunit = "5.3.0-RC1"
+ext.versionJunit = "5.3.1"
 ext.versionJsr305 = "3.0.2"
-ext.versionLombok = "edge"
-ext.versionPmd = "6.6.0"
-ext.versionSpotBugs = "3.1.6"
+ext.versionLombok = "1.18.4"
+ext.versionPmd = "6.9.0"
+ext.versionSpotBugs = "3.1.8"
 
 dependencies {
 
@@ -90,8 +90,11 @@ tasks.withType(JavaCompile) {
     options.debug = true
     options.fork = true
     options.compilerArgs << "-parameters" << "-Xlint:all,-processing"
-    if (doclint) options.compilerArgs << "-Xdoclint:all"
     extraCompilerArgs.each { e -> options.compilerArgs << e }
+}
+
+compileJava {
+    if (doclint) options.compilerArgs << "-Xdoclint:all"
 }
 
 tasks.withType(Javadoc) {
@@ -120,6 +123,9 @@ checkstyle {
 
 spotbugs {
     toolVersion = versionSpotBugs
+    effort = "max"
+    reportLevel = "low"
+    omitVisitors = ["WeakExceptionMessaging", "OverlyPermissiveMethod"]
 }
 
 tasks.withType(com.github.spotbugs.SpotBugsTask) {
@@ -129,6 +135,8 @@ tasks.withType(com.github.spotbugs.SpotBugsTask) {
         html.enabled = true
     }
 }
+
+spotbugsTest.enabled = false
 
 jar {
     baseName = artifactBaseName
