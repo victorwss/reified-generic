@@ -1,8 +1,12 @@
 package ninja.javahacker.reifiedgeneric;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
+import java.util.function.Supplier;
 import lombok.NonNull;
 
 /**
@@ -47,11 +51,21 @@ public interface ReifiedGeneric<X> extends Type {
      * @throws IllegalArgumentException If {@code type} is {@code null}.
      * @throws MalformedReifiedGenericException If {@code type} is not a {@link ParameterizedType} nor a {@link Class}.
      */
-    @SuppressFBWarnings("ITC_INHERITANCE_TYPE_CHECKING")
     public static ReifiedGeneric<?> of(@NonNull Type type) {
-        if (type instanceof Class<?>) return ClassReifiedGeneric.forClass((Class<?>) type);
-        if (type instanceof ParameterizedType) return ParameterizedReifiedGeneric.forType((ParameterizedType) type);
-        throw MalformedReifiedGenericException.shouldBeInstantiable();
+        return validate(
+                type,
+                () -> ClassReifiedGeneric.forClass((Class<?>) type),
+                () -> ParameterizedReifiedGeneric.forType((ParameterizedType) type));
+    }
+
+    @SuppressFBWarnings("ITC_INHERITANCE_TYPE_CHECKING")
+    public static <E> E validate(@NonNull Type type, @NonNull Supplier<E> forClass, @NonNull Supplier<E> forParameterized) {
+        if (type instanceof Class<?>) return forClass.get();
+        if (type instanceof ParameterizedType) return forParameterized.get();
+        if (type instanceof WildcardType) throw MalformedReifiedGenericException.wildcard();
+        if (type instanceof GenericArrayType) throw MalformedReifiedGenericException.genericArray();
+        if (type instanceof TypeVariable<?>) throw MalformedReifiedGenericException.typeVariable();
+        throw MalformedReifiedGenericException.unrecognized();
     }
 
     public Type getType();

@@ -35,9 +35,10 @@ public abstract class Token<X> {
     @SuppressWarnings("unchecked")
     protected Token() {
         Type superType = this.getClass().getGenericSuperclass();
-        if (superType instanceof Class) throw MalformedReifiedGenericException.illDefined();
-        if (!(superType instanceof ParameterizedType)) throw MalformedReifiedGenericException.shouldBeInstantiable();
-        ParameterizedType pt = (ParameterizedType) superType;
+        ParameterizedType pt = ReifiedGeneric.validate(
+                superType,
+                () -> { throw MalformedReifiedGenericException.raw(); },
+                () -> (ParameterizedType) superType);
         Type ppt;
         try {
             ppt = MyParameterizedType.wrap(pt.getActualTypeArguments()[0]);

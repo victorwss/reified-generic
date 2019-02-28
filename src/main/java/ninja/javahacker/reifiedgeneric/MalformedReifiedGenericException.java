@@ -7,7 +7,11 @@ package ninja.javahacker.reifiedgeneric;
 public class MalformedReifiedGenericException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
-    public static final String SHOULD_BE_INSTANTIABLE = "The generic type should be instantiable.";
+    public static final String TYPE_VARIABLE = "Type variables aren't realizable.";
+    public static final String WILDCARD = "Wildcard types aren't realizable.";
+    public static final String GENERIC_ARRAY = "Generic array types aren't realizable.";
+    public static final String UNRECOGNIZED = "The generic type couldn't be recognized.";
+    public static final String RAW = "Token type generic information uses raw types.";
     public static final String ILL_DEFINED = "The generic type is ill-defined.";
 
     private MalformedReifiedGenericException(String message) {
@@ -18,12 +22,24 @@ public class MalformedReifiedGenericException extends RuntimeException {
         super(message, cause);
     }
 
-    public static MalformedReifiedGenericException shouldBeInstantiable() {
-        return new MalformedReifiedGenericException(SHOULD_BE_INSTANTIABLE);
+    public static MalformedReifiedGenericException typeVariable() {
+        return new MalformedReifiedGenericException(TYPE_VARIABLE);
     }
 
-    public static MalformedReifiedGenericException illDefined() {
-        return new MalformedReifiedGenericException(ILL_DEFINED);
+    public static MalformedReifiedGenericException wildcard() {
+        return new MalformedReifiedGenericException(WILDCARD);
+    }
+
+    public static MalformedReifiedGenericException genericArray() {
+        return new MalformedReifiedGenericException(GENERIC_ARRAY);
+    }
+
+    public static MalformedReifiedGenericException unrecognized() {
+        return new MalformedReifiedGenericException(UNRECOGNIZED);
+    }
+
+    public static MalformedReifiedGenericException raw() {
+        return new MalformedReifiedGenericException(RAW);
     }
 
     public static MalformedReifiedGenericException illDefined(Throwable cause) {

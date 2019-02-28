@@ -113,17 +113,13 @@ public class ReifiedGenericTest {
         Assertions.assertEquals(message + " is marked @NonNull but is null", exception.getMessage());
     }
 
-    private void shouldBeInstantiable(Executable e) {
-        shouldGetException(MalformedReifiedGenericException.SHOULD_BE_INSTANTIABLE, e);
-    }
-
-    private void illDefined(Executable e) {
-        shouldGetException(MalformedReifiedGenericException.ILL_DEFINED, e);
+    private void shouldThrow(String error, Executable e) {
+        shouldGetException(error, e);
     }
 
     @Test
     public void errorWithTypeVariableGeneric() {
-        shouldBeInstantiable(this::createsTypeVariable);
+        shouldThrow(MalformedReifiedGenericException.TYPE_VARIABLE, this::createsTypeVariable);
     }
 
     private <X> ReifiedGeneric<X> createsTypeVariable() {
@@ -131,7 +127,7 @@ public class ReifiedGenericTest {
     }
 
     @Test
-    public void errorWithInnerTypeVariableGeneric() {
+    public void testWithInnerTypeVariableGeneric() {
         createsInnerTypeVariable();
     }
 
@@ -142,12 +138,12 @@ public class ReifiedGenericTest {
     @Test
     public void errorWithForTypeVariableGeneric() throws NoSuchMethodException {
         Type typeVariable = ReifiedGenericTest.class.getDeclaredMethod("foo1").getGenericReturnType();
-        shouldBeInstantiable(() -> ReifiedGeneric.of(typeVariable));
+        shouldThrow(MalformedReifiedGenericException.TYPE_VARIABLE, () -> ReifiedGeneric.of(typeVariable));
     }
 
     @Test
     public void errorWithGenericArray() {
-        shouldBeInstantiable(this::createsGenericArray);
+        shouldThrow(MalformedReifiedGenericException.GENERIC_ARRAY, this::createsGenericArray);
     }
 
     private <X> ReifiedGeneric<X[]> createsGenericArray() {
@@ -157,19 +153,19 @@ public class ReifiedGenericTest {
     @Test
     public void errorWithForTypeGenericArray() throws NoSuchMethodException {
         Type genericArray = ReifiedGenericTest.class.getDeclaredMethod("foo2").getGenericReturnType();
-        shouldBeInstantiable(() -> ReifiedGeneric.of(genericArray));
+        shouldThrow(MalformedReifiedGenericException.GENERIC_ARRAY, () -> ReifiedGeneric.of(genericArray));
     }
 
     @Test
     public void errorWithForTypeWildcard() throws NoSuchMethodException {
         Type parameterized = ReifiedGenericTest.class.getDeclaredMethod("foo3").getGenericReturnType();
         Type wildcard = ((ParameterizedType) parameterized).getActualTypeArguments()[0];
-        shouldBeInstantiable(() -> ReifiedGeneric.of(wildcard));
+        shouldThrow(MalformedReifiedGenericException.WILDCARD, () -> ReifiedGeneric.of(wildcard));
     }
 
     @Test
     public void errorWithRawType() {
-        illDefined(this::createsRawType);
+        shouldThrow(MalformedReifiedGenericException.RAW, this::createsRawType);
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
