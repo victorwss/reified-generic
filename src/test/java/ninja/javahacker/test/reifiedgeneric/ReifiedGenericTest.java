@@ -110,7 +110,7 @@ public class ReifiedGenericTest {
     private void nonNullWasNull(String message, Executable e) {
         IllegalArgumentException exception =
                 Assertions.assertThrows(IllegalArgumentException.class, e);
-        Assertions.assertEquals(message + " is marked @NonNull but is null", exception.getMessage());
+        Assertions.assertEquals(message + " is marked non-null but is null", exception.getMessage());
     }
 
     private void shouldThrow(String error, Executable e) {

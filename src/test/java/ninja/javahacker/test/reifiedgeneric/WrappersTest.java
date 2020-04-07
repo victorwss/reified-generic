@@ -116,7 +116,7 @@ public class WrappersTest {
 
     private static void nonNullWasNull(String name, Executable e) {
         IllegalArgumentException npe = Assertions.assertThrows(IllegalArgumentException.class, e);
-        Assertions.assertEquals(name + " is marked @NonNull but is null", npe.getMessage());
+        Assertions.assertEquals(name + " is marked non-null but is null", npe.getMessage());
     }
 
     @Test
