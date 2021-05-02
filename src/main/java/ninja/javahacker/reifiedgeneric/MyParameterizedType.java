@@ -23,18 +23,21 @@ final class MyParameterizedType implements ParameterizedType {
     private final Class<?> rawType;
     private final Type ownerType;
 
-    public MyParameterizedType(@NonNull Class<?> rawType, @NonNull Type[] actualTypeArguments, Type ownerType) {
+    @PackagePrivate
+    MyParameterizedType(@NonNull Class<?> rawType, @NonNull Type[] actualTypeArguments, Type ownerType) {
         this.actualTypeArguments = Stream.of(actualTypeArguments).map(MyParameterizedType::wrap).toArray(Type[]::new);
         this.rawType = rawType;
         this.ownerType = ownerType != null ? ownerType : rawType.getDeclaringClass();
         validateConstructorArguments();
     }
 
-    public static Type wrap(@NonNull Type other) {
+    @PackagePrivate
+    static Type wrap(@NonNull Type other) {
         return other instanceof ParameterizedType ? wrap((ParameterizedType) other) : other;
     }
 
-    public static MyParameterizedType wrap(@NonNull ParameterizedType other) {
+    @PackagePrivate
+    static MyParameterizedType wrap(@NonNull ParameterizedType other) {
         return other instanceof MyParameterizedType
                 ? (MyParameterizedType) other
                 : new MyParameterizedType((Class<?>) other.getRawType(), other.getActualTypeArguments(), other.getOwnerType());
@@ -45,21 +48,38 @@ final class MyParameterizedType implements ParameterizedType {
         if (formals.length != actualTypeArguments.length) throw new MalformedParameterizedTypeException();
     }
 
+    /**
+     * {@inheritDoc}
+     * @return {@inheritDoc}
+     */
     @Override
     public Type[] getActualTypeArguments() {
         return actualTypeArguments.clone();
     }
 
+    /**
+     * {@inheritDoc}
+     * @return {@inheritDoc}
+     */
     @Override
     public Class<?> getRawType() {
         return rawType;
     }
 
+    /**
+     * {@inheritDoc}
+     * @return {@inheritDoc}
+     */
     @Override
     public Type getOwnerType() {
         return ownerType;
     }
 
+    /**
+     * {@inheritDoc}
+     * @param o {@inheritDoc}
+     * @return {@inheritDoc}
+     */
     @Override
     @SuppressFBWarnings(
             value = "NSE_NON_SYMMETRIC_EQUALS",
@@ -76,6 +96,10 @@ final class MyParameterizedType implements ParameterizedType {
                 && Arrays.equals(actualTypeArguments, that.getActualTypeArguments());
     }
 
+    /**
+     * {@inheritDoc}
+     * @return {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         return Arrays.hashCode(actualTypeArguments)
@@ -83,6 +107,11 @@ final class MyParameterizedType implements ParameterizedType {
                 ^ rawType.hashCode();
     }
 
+    /**
+     * {@inheritDoc}
+     * @implSpec The implementation was mostly copied from Java 9's internal {@code ParameterizedTypeImpl#toString()} method.
+     * @return {@inheritDoc}
+     */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(100);
