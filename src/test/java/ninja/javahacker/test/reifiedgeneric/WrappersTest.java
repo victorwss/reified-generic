@@ -26,8 +26,8 @@ import org.junit.jupiter.api.function.Executable;
 public class WrappersTest {
 
     private static final ReifiedGeneric<String> NIL = null;
-    private static final ReifiedGeneric<String> THING = new Token<String>() {}.reify();
-    private static final ReifiedGeneric<Integer> OTHER = new Token<Integer>() {}.reify();
+    private static final ReifiedGeneric<String> THING = new Token<String>() {}.getReified();
+    private static final ReifiedGeneric<Integer> OTHER = new Token<Integer>() {}.getReified();
 
     @Test
     @SuppressWarnings("unchecked")
@@ -42,76 +42,76 @@ public class WrappersTest {
 
     @Test
     public void testWrapSingleTypes() {
-        var a = Wrappers.unwrapIterable(new Token<List<String>>() {}.reify());
-        var b = Wrappers.unwrapIterable(new Token<Collection<String>>() {}.reify());
-        var c = Wrappers.unwrapIterable(new Token<NavigableSet<String>>() {}.reify());
-        var d = Wrappers.unwrapIterator(new Token<Iterator<String>>() {}.reify());
-        var e = Wrappers.unwrapStream(new Token<Stream<String>>() {}.reify());
+        var a = Wrappers.unwrapIterable(new Token<List<String>>() {}.getReified());
+        var b = Wrappers.unwrapIterable(new Token<Collection<String>>() {}.getReified());
+        var c = Wrappers.unwrapIterable(new Token<NavigableSet<String>>() {}.getReified());
+        var d = Wrappers.unwrapIterator(new Token<Iterator<String>>() {}.getReified());
+        var e = Wrappers.unwrapStream(new Token<Stream<String>>() {}.getReified());
         Assertions.assertAll(Stream.of(a, b, c, d, e).map(x -> () -> Assertions.assertEquals(THING, x)));
     }
 
     @Test
     public void testWrapMapTypes() {
-        var a = Wrappers.unwrapMapKey(new Token<Map<String, Integer>>() {}.reify());
-        var b = Wrappers.unwrapMapEntryKey(new Token<Map.Entry<String, Integer>>() {}.reify());
-        var c = Wrappers.unwrapMapValue(new Token<Map<Integer, String>>() {}.reify());
-        var d = Wrappers.unwrapMapEntryValue(new Token<Map.Entry<Integer, String>>() {}.reify());
+        var a = Wrappers.unwrapMapKey(new Token<Map<String, Integer>>() {}.getReified());
+        var b = Wrappers.unwrapMapEntryKey(new Token<Map.Entry<String, Integer>>() {}.getReified());
+        var c = Wrappers.unwrapMapValue(new Token<Map<Integer, String>>() {}.getReified());
+        var d = Wrappers.unwrapMapEntryValue(new Token<Map.Entry<Integer, String>>() {}.getReified());
         Assertions.assertAll(Stream.of(a, b, c, d).map(x -> () -> Assertions.assertEquals(THING, x)));
     }
 
     @Test
     public void testUnwrapIterable() {
-        Assertions.assertEquals(new Token<Iterable<String>>() {}.reify(), Wrappers.iterable(THING));
+        Assertions.assertEquals(new Token<Iterable<String>>() {}.getReified(), Wrappers.iterable(THING));
     }
 
     @Test
     public void testUnwrapIterator() {
-        Assertions.assertEquals(new Token<Iterator<String>>() {}.reify(), Wrappers.iterator(THING));
+        Assertions.assertEquals(new Token<Iterator<String>>() {}.getReified(), Wrappers.iterator(THING));
     }
 
     @Test
     public void testUnwrapCollection() {
-        Assertions.assertEquals(new Token<Collection<String>>() {}.reify(), Wrappers.collection(THING));
+        Assertions.assertEquals(new Token<Collection<String>>() {}.getReified(), Wrappers.collection(THING));
     }
 
     @Test
     public void testUnwrapList() {
-        Assertions.assertEquals(new Token<List<String>>() {}.reify(), Wrappers.list(THING));
+        Assertions.assertEquals(new Token<List<String>>() {}.getReified(), Wrappers.list(THING));
     }
 
     @Test
     public void testUnwrapSet() {
-        Assertions.assertEquals(new Token<Set<String>>() {}.reify(), Wrappers.set(THING));
+        Assertions.assertEquals(new Token<Set<String>>() {}.getReified(), Wrappers.set(THING));
     }
 
     @Test
     public void testUnwrapSortedSet() {
-        Assertions.assertEquals(new Token<SortedSet<String>>() {}.reify(), Wrappers.sortedSet(THING));
+        Assertions.assertEquals(new Token<SortedSet<String>>() {}.getReified(), Wrappers.sortedSet(THING));
     }
 
     @Test
     public void testUnwrapNavigableSet() {
-        Assertions.assertEquals(new Token<NavigableSet<String>>() {}.reify(), Wrappers.navigableSet(THING));
+        Assertions.assertEquals(new Token<NavigableSet<String>>() {}.getReified(), Wrappers.navigableSet(THING));
     }
 
     @Test
     public void testUnwrapMap() {
-        Assertions.assertEquals(new Token<Map<String, Integer>>() {}.reify(), Wrappers.map(THING, OTHER));
+        Assertions.assertEquals(new Token<Map<String, Integer>>() {}.getReified(), Wrappers.map(THING, OTHER));
     }
 
     @Test
     public void testUnwrapMapEntry() {
-        Assertions.assertEquals(new Token<Map.Entry<String, Integer>>() {}.reify(), Wrappers.entry(THING, OTHER));
+        Assertions.assertEquals(new Token<Map.Entry<String, Integer>>() {}.getReified(), Wrappers.entry(THING, OTHER));
     }
 
     @Test
     public void testUnwrapSortedMap() {
-        Assertions.assertEquals(new Token<SortedMap<String, Integer>>() {}.reify(), Wrappers.sortedMap(THING, OTHER));
+        Assertions.assertEquals(new Token<SortedMap<String, Integer>>() {}.getReified(), Wrappers.sortedMap(THING, OTHER));
     }
 
     @Test
     public void testUnwrapNavigableMap() {
-        Assertions.assertEquals(new Token<NavigableMap<String, Integer>>() {}.reify(), Wrappers.navigableMap(THING, OTHER));
+        Assertions.assertEquals(new Token<NavigableMap<String, Integer>>() {}.getReified(), Wrappers.navigableMap(THING, OTHER));
     }
 
     private static void nonNullWasNull(String name, Executable e) {
