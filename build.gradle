@@ -10,7 +10,7 @@ plugins {
 
 description = "Reified Generic"
 group = "ninja.javahacker"
-version = "1.1.0-2021.05.26"
+version = "1.1.0-2021.08.24"
 
 def artifactName = "reified-generic"
 def moduleName = "ninja.javahacker.reifiedgeneric"
@@ -79,12 +79,10 @@ configurations.testCompileOnly.setCanBeResolved(true)
 configurations.testImplementation.setCanBeResolved(true)
 
 tasks.withType(JavaCompile) {
-    def extraCompilerArgs = []
     options.encoding = "UTF-8"
     options.debug = true
     options.fork = true
     options.compilerArgs << "-parameters" << "-Xlint:all,-processing,-requires-transitive-automatic,-requires-automatic,-missing-explicit-ctor"
-    options.compilerArgs.addAll(extraCompilerArgs)
 }
 
 compileJava {
@@ -125,7 +123,7 @@ task delombok {
     doLast {
         ant.mkdir(dir: "build/src-delomboked")
         ant.taskdef(name: "delombok", classname: "lombok.delombok.ant.Tasks\$Delombok", classpath: delombokPath)
-        ant.delombok(verbose: "true", encoding: "UTF-8", to: "build/src-delomboked", from: "src/main/java", modulepath: delombokPath)
+        ant.delombok(verbose: "false", encoding: "UTF-8", to: "build/src-delomboked", from: "src/main/java", modulepath: delombokPath)
     }
 }
 
