@@ -18,8 +18,8 @@ import lombok.experimental.PackagePrivate;
  * <p>Instances should be created with this:</p>
  *
  * <pre>
- * ReifiedGeneric&lt;String&gt; t1 = new Token&lt;&gt;() {}.reify();
- * ReifiedGeneric&lt;Map&lt;String, Thread&gt;&gt; t2 = new Token&lt;&gt;() {}.reify();
+ * ReifiedGeneric&lt;String&gt; t1 = new Token&lt;&gt;() {}.getReified();
+ * ReifiedGeneric&lt;Map&lt;String, Thread&gt;&gt; t2 = new Token&lt;&gt;() {}.getReified();
  * ReifiedGeneric&lt;Float&gt; t3 = ReifiedGeneric.of(Float.class) {};
  * Type x = ...;
  * ReifiedGeneric&lt;?&gt; tx = ReifiedGeneric.of(t);
