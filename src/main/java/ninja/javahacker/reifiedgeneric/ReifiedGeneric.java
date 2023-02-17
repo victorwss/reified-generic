@@ -85,20 +85,15 @@ public abstract class ReifiedGeneric<X> {
     @NonNull
     @PackagePrivate
     static ReifiedGeneric<?> ofToken(@NonNull Type superType) {
-        ParameterizedType pt = ReifiedGeneric.validate(
-                superType,
-                () -> { throw MalformedReifiedGenericException.raw(); },
-                () -> (ParameterizedType) superType
-        );
-
-        Type ppt;
         try {
-            ppt = MyParameterizedType.wrap(pt.getActualTypeArguments()[0]);
+            return ReifiedGeneric.of(MyParameterizedType.wrap(ReifiedGeneric.validate(
+                    superType,
+                    () -> { throw MalformedReifiedGenericException.raw(); },
+                    () -> (ParameterizedType) superType
+            ).getActualTypeArguments()[0]));
         } catch (MalformedParameterizedTypeException | TypeNotPresentException | IndexOutOfBoundsException e) {
             throw MalformedReifiedGenericException.illDefined(e);
         }
-
-        return ReifiedGeneric.of(ppt);
     }
 
     /**

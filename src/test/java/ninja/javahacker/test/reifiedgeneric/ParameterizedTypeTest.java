@@ -115,4 +115,16 @@ public class ParameterizedTypeTest {
         ParameterizedType t = Wrappers.make(List.class, p.getActualTypeArguments(), null);
         verify(p, t, "java.util.List<T>");
     }
+
+    @Test
+    public void packageConfusionTest() throws Exception {
+        Class<?> owner = Class.forName("PackageConfusion");
+        ParameterizedType p1 = (ParameterizedType) owner.getDeclaredMethod("blah").getGenericReturnType();
+        ParameterizedType p2 = Wrappers.make((Class<?>) p1.getRawType(), p1.getActualTypeArguments(), p1.getOwnerType());
+        String expected = "PackageConfusion<java.lang.Integer>$PackageConfusion$xxx<java.lang.Integer>";
+        Assertions.assertAll(
+                //() -> Assertions.assertEquals(expected, p1.toString()), // Buggy as JDK 19!
+                () -> Assertions.assertEquals(expected, p2.toString())
+        );
+    }
 }

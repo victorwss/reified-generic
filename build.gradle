@@ -21,7 +21,7 @@ plugins {
 
 description = "Reified Generic"
 group = "ninja.javahacker"
-version = "1.1.0-2022.09.20"
+version = "1.1.0-2023.02.14"
 
 var artifactName = "reified-generic"
 var moduleName = "ninja.javahacker.reifiedgeneric"
@@ -212,12 +212,12 @@ jar {
 
 task sourcesJar(type: Jar) {
     from(sourceSets.main.allSource)
-    classifier = "sources"
+    archiveClassifier = "sources"
 }
 
 task javadocJar(type: Jar) {
     from(javadoc)
-    classifier = "javadoc"
+    archiveClassifier = "javadoc"
 }
 
 test {

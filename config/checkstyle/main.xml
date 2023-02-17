@@ -35,6 +35,12 @@
     </module>
 
     <module name="TreeWalker">
+        <module name="SuppressionCommentFilter">
+            <property name="offCommentFormat" value="CHECKSTYLE OFF\: ([\w\|]+)"/>
+            <property name="onCommentFormat" value="CHECKSTYLE ON\: ([\w\|]+)"/>
+            <property name="checkFormat" value="$1"/>
+        </module>
+
         <!-- See http://checkstyle.sf.net/config_javadoc.html -->
         <module name="AtclauseOrder">
             <property name="target" value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF, METHOD_DEF, CTOR_DEF, VARIABLE_DEF"/>
