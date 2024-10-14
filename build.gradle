@@ -50,14 +50,14 @@ dependencies {
 
     // SpotBugs + plugins + dependencies
     spotbugs(group: "com.github.spotbugs", name: "spotbugs", version: versionSpotBugs)
-    spotbugs(group: "org.slf4j", name: "slf4j-api", version: versionSlf4j)
+    spotbugs(group: "org.slf4j", name: "slf4j-api"   , version: versionSlf4j)
     spotbugs(group: "org.slf4j", name: "slf4j-simple", version: versionSlf4j)
     spotbugs(group: "org.ow2.asm", name: "asm", version: versionAsm)
     spotbugs(configurations.spotbugsPlugins.dependencies)
     spotbugs(configurations.apiElements.dependencies)
     compileOnlyApi(group: "com.github.stephenc.jcip", name: "jcip-annotations", version: versionJcip)
     compileOnlyApi(group: "com.github.spotbugs", name: "spotbugs-annotations", version: versionSpotBugs)
-    //spotbugsPlugins(group: "com.h3xstream.findsecbugs", name: "findsecbugs-plugin", version: versionFindSecBugs)
+    spotbugsPlugins(group: "com.h3xstream.findsecbugs", name: "findsecbugs-plugin", version: versionFindSecBugs)
     spotbugsPlugins(group: "com.mebigfatguy.sb-contrib", name: "sb-contrib", version: versionSbContrib)
 }
 
@@ -132,7 +132,7 @@ tasks.withType(Javadoc) {
     options.addBooleanOption("html5", true)
     options.tags = ["apiNote:a:API Note:", "implSpec:a:Implementation Requirements:", "implNote:a:Implementation Note:"]
     if (doclint) {
-        //options.addBooleanOption("Xdoclint:all/protected", true)
+        options.addBooleanOption("Xdoclint:all/protected", true)
     } else {
         options.addBooleanOption("Xdoclint:none", true)
     }

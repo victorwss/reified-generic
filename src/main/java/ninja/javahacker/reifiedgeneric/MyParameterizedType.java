@@ -7,6 +7,7 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.StringJoiner;
 import java.util.stream.Stream;
 import lombok.NonNull;
 import lombok.experimental.PackagePrivate;
@@ -109,13 +110,13 @@ final class MyParameterizedType implements ParameterizedType {
 
     /**
      * {@inheritDoc}
-     * @implSpec The implementation was mostly copied from Java 9's internal {@code ParameterizedTypeImpl#toString()} method.
+     * @implSpec The implementation was mostly copied from Java 9-19's internal {@code ParameterizedTypeImpl#toString()} method.
      * @return {@inheritDoc}
      */
     @Override
     @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
     public String toString() {
-        StringBuilder sb = new StringBuilder(100);
+        StringBuilder sb = new StringBuilder(256);
 
         if (ownerType != null) {
             if (ownerType instanceof Class) {
@@ -127,9 +128,9 @@ final class MyParameterizedType implements ParameterizedType {
             sb.append('$');
 
             if (ownerType instanceof ParameterizedType) {
-                // Find simple name of nested type by removing the
-                // shared prefix with owner.
-                sb.append(rawType.getName().replace(((ParameterizedType) ownerType).getRawType().getTypeName() + "$", ""));
+                // Find simple name of nested type by removing the shared prefix with owner.
+                String parentName = ((ParameterizedType) ownerType).getRawType().getTypeName();
+                sb.append(rawType.getName().substring(parentName.length() + 1)); // + 1 due the "$" after the parent's name.
             } else {
                 sb.append(rawType.getName());
             }
@@ -138,14 +139,12 @@ final class MyParameterizedType implements ParameterizedType {
         }
 
         if (actualTypeArguments != null && actualTypeArguments.length > 0) {
-            sb.append('<');
-            boolean first = true;
+            StringJoiner sj = new StringJoiner(", ", "<", ">");
+            sj.setEmptyValue("");
             for (Type t: actualTypeArguments) {
-                if (!first) sb.append(", ");
-                sb.append(t.getTypeName());
-                first = false;
+                sj.add(t.getTypeName());
             }
-            sb.append('>');
+            sb.append(sj.toString());
         }
 
         return sb.toString();

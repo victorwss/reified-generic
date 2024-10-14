@@ -84,7 +84,6 @@ public abstract class ReifiedGeneric<X> {
 
     @NonNull
     @PackagePrivate
-    @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
     static ReifiedGeneric<?> ofToken(@NonNull Type superType) {
         ParameterizedType pt = ReifiedGeneric.validate(
                 superType,
