@@ -84,6 +84,7 @@ public abstract class ReifiedGeneric<X> {
 
     @NonNull
     @PackagePrivate
+    @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
     static ReifiedGeneric<?> ofToken(@NonNull Type superType) {
         ParameterizedType pt = ReifiedGeneric.validate(
                 superType,
@@ -93,7 +94,8 @@ public abstract class ReifiedGeneric<X> {
 
         Type ppt;
         try {
-            ppt = MyParameterizedType.wrap(pt.getActualTypeArguments()[0]);
+            Type z = pt.getActualTypeArguments()[0];
+            ppt = MyParameterizedType.wrap(z);
         } catch (MalformedParameterizedTypeException | TypeNotPresentException | IndexOutOfBoundsException e) {
             throw MalformedReifiedGenericException.illDefined(e);
         }
@@ -109,7 +111,7 @@ public abstract class ReifiedGeneric<X> {
     public abstract Type getType();
 
     /**
-     * Gives the type that is represented by this instance aproximated as a {@code Class}.
+     * Gives the raw class type that is represented by this instance as a {@code Class}.
      * @return The raw-type that is represented by this instance.
      */
     @NonNull

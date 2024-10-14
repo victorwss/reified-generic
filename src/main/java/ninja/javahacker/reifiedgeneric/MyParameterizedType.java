@@ -113,6 +113,7 @@ final class MyParameterizedType implements ParameterizedType {
      * @return {@inheritDoc}
      */
     @Override
+    @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
     public String toString() {
         StringBuilder sb = new StringBuilder(100);
 
