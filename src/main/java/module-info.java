@@ -8,7 +8,10 @@ import ninja.javahacker.reifiedgeneric.Token;
  * @see ninja.javahacker.reifiedgeneric.ReifiedGeneric
  * @see ninja.javahacker.reifiedgeneric.Token
  */
-@SuppressWarnings("module")
+@SuppressWarnings({
+    "module", // opens
+    "requires-automatic", "requires-transitive-automatic" // com.github.spotbugs.annotations
+})
 module ninja.javahacker.reifiedgeneric {
     requires transitive static lombok;
     requires transitive static com.github.spotbugs.annotations;
